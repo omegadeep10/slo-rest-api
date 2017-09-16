@@ -8,8 +8,7 @@ class HelloWorld(Resource):
     def get(self):
         data = session.query(User).first()
         return {
-          'hello': current_identity['username'],
-          'first_user': data._asdict()
+          'first_user': data.username
         }
 
 

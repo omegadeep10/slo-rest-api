@@ -1,11 +1,16 @@
 from flask_jwt import jwt_required, current_identity
 from flask_restful import Resource
 from controllers.auth import checkadmin
+from db import session
+from models import User
 
 class HelloWorld(Resource):
-    @jwt_required()
     def get(self):
-        return { 'hello': current_identity['username'] }
+        data = session.query(User).first()
+        return {
+          'hello': current_identity['username'],
+          'first_user': data._asdict()
+        }
 
 
 class AdminProtected(Resource):

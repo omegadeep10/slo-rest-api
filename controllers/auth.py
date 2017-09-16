@@ -1,7 +1,8 @@
+from db import session
+from models import User
 from flask_jwt import JWT, jwt_required, current_identity
 from flask_restful import abort
 from functools import wraps
-import sys
 
 #temporary in-memory user database. In the real app, this would be replaced with a database call
 users_data = [
@@ -20,7 +21,7 @@ users_data = [
 ]
 
 #User object since flask-jwt requires one with an id param
-class User(object):
+class MyUser(object):
     def __init__(self, id, username):
         self.id = id
         self.username = username
@@ -32,7 +33,7 @@ class User(object):
 def authenticate(username, password):
   for user in users_data:
     if user['username'] == username and user['password'] == password:
-      return User(user["id"], user['username'])
+      return MyUser(user["id"], user['username'])
 
 def identity(payload):
   user_id = payload['identity']

@@ -3,13 +3,13 @@ from flask_restful import Resource
 from controllers.auth import checkadmin
 from db import session
 from models import User
+import sys
 
 class HelloWorld(Resource):
+    @jwt_required()
     def get(self):
-        data = session.query(User).first()
-        return {
-          'first_user': data.username
-        }
+        print(current_identity, sys.stdout)
+        return { 'congrats': current_identity.username }
 
 
 class AdminProtected(Resource):

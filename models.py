@@ -13,3 +13,6 @@ class User(Base):
     password = Column(String(45))
     is_admin = Column(String(5))
     class_list = Column(String(45))
+    
+    def __str__(self):
+        return "User(id='%s')" % self.id

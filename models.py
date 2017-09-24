@@ -6,13 +6,14 @@ from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 class User(Base):
-    __tablename__ = 'users'
+    __tablename__ = 'Logins'
 
     id = Column(Integer, primary_key=True)
-    username = Column(String(45))
+    email = Column(String(45))
+    fname = Column(String(20))
+    lname = Column(String(20))
     password = Column(String(45))
-    is_admin = Column(String(5))
-    class_list = Column(String(45))
+    userType = Column(String(1))
     
     def __str__(self):
-        return "User(id='%s')" % self.id
+        return "User object: (id='%s')" % self.id

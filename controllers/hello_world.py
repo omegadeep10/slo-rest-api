@@ -8,12 +8,12 @@ import sys
 class HelloWorld(Resource):
     @jwt_required()
     def get(self):
-        print(current_identity, sys.stdout)
-        return { 'congrats': current_identity.username }
+        print(type(current_identity.email), sys.stdout)
+        return { 'congrats': current_identity.email.decode('utf-8') }
 
 
 class AdminProtected(Resource):
     @jwt_required()
     @checkadmin
     def get(self):
-      return { 'congrats': current_identity['username'] }
+      return { 'congrats': current_identity['email'] }

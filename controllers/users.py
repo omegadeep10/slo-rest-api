@@ -1,14 +1,19 @@
 from flask_jwt import jwt_required, current_identity
-from flask_restful import Resource
+from flask_restful import Resource, fields, marshal_with
 from controllers.auth import checkadmin
 from db import session
 from models import User
-import sys
 
-class Users(Resource):
-  @jwt_required()
-  def get(self):
-    return {'get user'}
-  
-  def put(self):
-    return {'updated successfully'}
+user_fields = {
+	'id': fields.Integer,
+    'email': fields.String,
+    'fname': fields.String,
+    'lname': fields.String,
+    'userType': fields.String
+}
+
+class User(Resource):
+	@jwt_required()
+	@marshal_with(user_fields)
+	def get(self):
+		return current_identity # current_identity is the SQLAlchemy User Object

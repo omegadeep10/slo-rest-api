@@ -20,7 +20,7 @@ jwt = JWT(app, authenticate, identity)
 # Importing various api resources
 from controllers.hello_world import HelloWorld, AdminProtected
 from controllers.register import Register
-from controllers.users import Users
+from controllers.users import User
 from controllers.assessments import Assessments
 from controllers.classes import Classes
 
@@ -30,7 +30,7 @@ from controllers.classes import Classes
 api.add_resource(HelloWorld, '/')            #<base_url>/
 api.add_resource(AdminProtected, '/admin')   #<base_url/admin
 api.add_resource(Register, '/register')      #<base_url>/register
-api.add_resource(Users,'/users')             #<base_url>/users
+api.add_resource(User,'/users')             #<base_url>/users
 api.add_resource(Assessments,'/assessments') #<base_url>/assessments
 api.add_resource(Classes,'/classes')         #<base_url>/classes
 

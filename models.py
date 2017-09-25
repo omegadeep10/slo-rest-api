@@ -17,3 +17,10 @@ class User(Base):
     
     def __str__(self):
         return "User object: (id='%s')" % self.id
+      
+    def __init__(self,email,fname,lname,password,userType):
+      self.email = email
+      self.fname = fname
+      self.lname = lname
+      self.password = password
+      self.userType = userType

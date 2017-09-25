@@ -6,10 +6,10 @@ from models import User
 
 user_fields = {
 	'id': fields.Integer,
-    'email': fields.String,
-    'fname': fields.String,
-    'lname': fields.String,
-    'userType': fields.String
+	'email': fields.String,
+	'fname': fields.String,
+	'lname': fields.String,
+	'userType': fields.String
 }
 
 class User(Resource):

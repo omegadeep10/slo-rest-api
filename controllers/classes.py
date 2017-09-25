@@ -8,16 +8,16 @@ import sys
 class Classes(Resource):
   @jwt_required()
   def get(self):
-    return {'get classes'}
+    return {'data':'get classes'}
   
   def get_crn(self):
-    return {'get crn'}
+    return {'data1':'get crn'}
   
   def post(self):
-    return {'new crn'}
+    return {'data2':'new crn'}
   
   def put(self):
-    return {'edited successfully'}
+    return {'data3':'edited successfully'}
   
   def delete(self):
-    return {'deleted successfully'}
+    return {'data4':'deleted successfully'}

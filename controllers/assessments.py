@@ -8,16 +8,16 @@ import sys
 class Assessments(Resource):
   @jwt_required()
   def get(self):
-    return {'get assessments'}
+    return {'data':'get assessments'}
   
   def get_assessment(self):
-    return {'get assessment'}
+    return {'data1':'get assessment'}
   
   def post(self):
-    return {'post assessment object'}
+    return {'data2':'post assessment object'}
   
   def put(self):
-    return {'assessment updated'}
+    return {'data3':'assessment updated'}
   
   def delete(self):
-    return {'deleted successfully'}
+    return {'data4':'deleted successfully'}

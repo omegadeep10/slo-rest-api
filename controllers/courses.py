@@ -3,6 +3,7 @@ from flask_restful import Resource, fields, marshal_with, abort, reqparse
 from controllers.auth import checkadmin
 from db import session
 from models.Course import CourseModel
+from datetime import datetime
 
 course_fields = {
   'crn': fields.String,
@@ -14,11 +15,19 @@ course_fields = {
 }
 
 
+courseParser = reqparse.RequestParser()
+courseParser.add_argument('crn', type=str, required=True)
+courseParser.add_argument('faculty_id', type=str, required=True)
+courseParser.add_argument('course_name', type=str, required=True)
+courseParser.add_argument('course_type', type=str, required=True)
+courseParser.add_argument('semester', type=str, required=True)
+courseParser.add_argument('course_year', type=datetime.fromtimestamp, required=True)
+
 class Course(Resource):
   @jwt_required()
+  @marshal_with(course_fields)
   def get(self, crn):
-    return {'data':'get classes'}
-    # To-Do => Return specific course by CRN
+    return session.query(CourseModel).filter(CourseModel.crn == crn).first()
   
   def put(self, crn):
     return {'data3':'edited successfully'}
@@ -38,6 +47,20 @@ class CourseList(Resource):
     else:
       return session.query(CourseModel).filter(CourseModel.faculty_id == current_identity.faculty_id).all()
   
+  @jwt_required()
+  @marshal_with(course_fields)
   def post(self):
-    return {'data2':'new crn'}
-    # To-Do => Insert a new course
+    parsed_args = courseParser.parse_args()
+    x = CourseModel(
+      crn=parsed_args['crn'],
+      faculty_id=parsed_args['faculty_id'],
+      course_name=parsed_args['course_name'],
+      course_type=parsed_args['course_type'],
+      semester=parsed_args['semester'],
+      course_year=parsed_args['course_year']
+    )
+
+    session.add(x)
+    session.commit()
+
+    return x, 201

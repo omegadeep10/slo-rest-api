@@ -20,6 +20,6 @@ class CourseModel(Base):
         self.crn = crn
         self.faculty_id = faculty_id
         self.course_name = course_name
-        self.course_type = last_name
+        self.course_type = course_type
         self.semester = semester
-        self.course_year = password
+        self.course_year = course_year

@@ -1,8 +1,9 @@
 from db import session
-from models import User
+from user import User
 from flask_jwt import JWT, jwt_required, current_identity
 from flask_restful import abort
 from functools import wraps
+from flask import request
 import sys
 
 # The authentication handler used by flask_JWT. Takes an email and password
@@ -26,3 +27,6 @@ def checkadmin(func):
       return func(*args, **kwargs)
     return abort(401)
   return wrapper
+
+# McKay trying to get a cache decorator working to timeout
+#def cached(timeout=5 * 60, )

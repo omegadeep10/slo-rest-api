@@ -21,8 +21,8 @@ jwt = JWT(app, authenticate, identity)
 from controllers.hello_world import HelloWorld, AdminProtected
 from controllers.register import Register
 from controllers.users import User
-from controllers.assessments import Assessments
-from controllers.classes import Classes
+from controllers.assessments import Assessments, AssessmentsList
+from controllers.classes import Classes, ClassesList
 
 # NOTE: To obtain auth token, use the /auth endpoint, passing in a JSON object with email and password fields.
 #       This endpoint is not shown here since it's automatically setup by flask_jwt.
@@ -31,8 +31,10 @@ api.add_resource(HelloWorld, '/')            #<base_url>/
 api.add_resource(AdminProtected, '/admin')   #<base_url/admin
 api.add_resource(Register, '/register')      #<base_url>/register
 api.add_resource(User,'/users')             #<base_url>/users
-api.add_resource(Assessments,'/assessments') #<base_url>/assessments
-api.add_resource(Classes,'/classes')         #<base_url>/classes
+api.add_resource(AssessmentsList,'/assessments')  #<base_url>/assessments
+api.add_resource(Assessments,'/assessments/<int:assessment_id>') #<base_url>/assessments/<assessment_id>
+api.add_resource(ClassesList,'/classes')         #<base_url>/classes
+api.add_resource(Classes,'/classes/<int:CRN>')  #<base_url>/classes/<CRN>
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, debug=True) # runs on an internal ip at port 3000 that codeanywhere's linux box automatically maps to external IP

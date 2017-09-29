@@ -1,8 +1,8 @@
 from flask_jwt import jwt_required, current_identity
-from flask_restful import Resource, fields, marshal_with
+from flask_restful import Resource, fields, marshal_with, reqparse
 from controllers.auth import checkadmin
 from db import session
-from models import User
+from user import User
 
 user_fields = {
 	'id': fields.Integer,

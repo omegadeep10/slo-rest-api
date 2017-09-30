@@ -29,20 +29,24 @@ class Classes(Resource):
     return {'data4':'deleted successfully'}
   
 class ClassesList(Resource):
-  @jwt_required()
-  @marshal_with(class_fields)
-  def get(self):
-    return session.query(Course).all()
-  
-  def post(self):
-    parser = reqparse.RequestParser()
-    parser.add_argument('CRN',type=str,required = True, help='CRN field is required.')
-    parser.add_argument('courseName',type=str,required = True, help='Course Name field is required.')
-    parser.add_argument('courseType',type=str,required = True,help='Course Type field is required.')
-    parser.add_argument('semester',type=str,required = True,help='Semester field is required.')
-    parser.add_argument('courseYear',type=str,required = True,help='Course Year field is required.')
-    args = parser.parse_args()
-    me = Course(args['CRN'],args['courseName'],args['courseType'],args['semester'],args['courseYear'])
-    session.add(me)
-    session.commit() #commits to a database
-    return me
+	@jwt_required()
+	@marshal_with(class_fields)
+	def get(self):
+		parser = reqparse.RequestParser()
+		parser.add_argument('CRN',type=str,required = True, help='CRN field is required.')
+		args = parser.parse_args()
+		class_CRN = args['CRN']
+		return session.query(Course).filter(Course.CRN == class_CRN).one_or_none()
+	
+	def post(self):
+		parser = reqparse.RequestParser()
+		parser.add_argument('CRN',type=str,required = True, help='CRN field is required.')
+		parser.add_argument('courseName',type=str,required = True, help='Course Name field is required.')
+		parser.add_argument('courseType',type=str,required = True,help='Course Type field is required.')
+		parser.add_argument('semester',type=str,required = True,help='Semester field is required.')
+		parser.add_argument('courseYear',type=str,required = True,help='Course Year field is required.')
+		args = parser.parse_args()
+		me = Course(args['CRN'],args['courseName'],args['courseType'],args['semester'],args['courseYear'])
+		session.add(me)
+		session.commit() #commits to a database
+		return me

@@ -20,12 +20,14 @@ jwt = JWT(app, authenticate, identity)
 
 
 from controllers.courses import Course, CourseList
+from controllers.profile import Profile
 
 # NOTE: To obtain auth token, use the /auth endpoint, passing in a JSON object with email and password fields.
 #       This endpoint is not shown here since it's automatically setup by flask_jwt.
 
 api.add_resource(Course, '/course/<string:crn>')
 api.add_resource(CourseList, '/courses')
+api.add_resource(Profile, '/profile')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, debug=True) # runs on an internal ip at port 3000 that codeanywhere's linux box automatically maps to external IP

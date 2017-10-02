@@ -34,8 +34,12 @@ class Course(Resource):
     # To-Do => Edit a course
   
   def delete(self, crn):
-    return {'data4':'deleted successfully'}
-    # To-Do => Delete a specific course
+    course = session.query(CourseModel).filter(CourseModel.crn == crn).first()
+    if (course):
+      session.delete(course)
+      session.commit()
+    
+    return {}, 201
 
 
 class CourseList(Resource):

@@ -30,7 +30,7 @@ class Course(Resource):
     return session.query(CourseModel).filter(CourseModel.crn == crn).first()
   
   def put(self, crn):
-    return {'data3':'edited successfully'}
+    return {'data':'edited successfully'}
     # To-Do => Edit a course
   
   def delete(self, crn):

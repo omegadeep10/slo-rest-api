@@ -8,9 +8,9 @@ Base = declarative_base()
 class SLO(Base):
   __tablename__ = 'SLO'
   
-  sloID = Column(String(9),primary_key = True)
-  sloDesc = Column(String(255))
+  slo_id = Column(String(9),primary_key = True)
+  slo_description = Column(String(255))
   
-  def __init__(self,sloID,sloDesc):
-    self.sloID = sloID
-    self.sloDesc = sloDesc
+  def __init__(self,slo_id,slo_description):
+    self.slo_id = slo_id
+    self.slo_description = slo_description

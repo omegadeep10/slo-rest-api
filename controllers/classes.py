@@ -32,7 +32,7 @@ class Classes(Resource):
     return {'data4':'deleted successfully'}
   
 class ClassesList(Resource):
-  @jwt_required()7
+  @jwt_required()
   @marshal_with(class_fields)
   def get(self):
     classParser.add_argument('crn', type=str, required=True, help='CRN is required.')

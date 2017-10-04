@@ -7,12 +7,22 @@ import sys
 import datetime
 
 class_fields = {
-	'CRN': fields.String,
-	'courseName': fields.String,
-	'courseType': fields.String,
-	'semester': fields.String,
-	'courseYear': fields.String
+  'crn': fields.String,
+  'faculty_id': fields.String,
+  'course_name': fields.String,
+  'course_type': fields.String,
+  'semester': fields.String,
+  'course_year': fields.String(attribute=lambda x: x.course_year.year) # extract only the Year as a string
 }
+
+
+courseParser = reqparse.RequestParser()
+courseParser.add_argument('crn', type=str, required=True)
+courseParser.add_argument('faculty_id', type=str, required=True)
+courseParser.add_argument('course_name', type=str, required=True)
+courseParser.add_argument('course_type', type=str, required=True)
+courseParser.add_argument('semester', type=str, required=True)
+courseParser.add_argument('course_year', type=datetime.fromtimestamp, required=True)
 
 class Classes(Resource):
   @jwt_required()
@@ -39,14 +49,8 @@ class ClassesList(Resource):
 		return session.query(Course).filter(Course.CRN == class_CRN).one_or_none()
 	
 	def post(self):
-		parser = reqparse.RequestParser()
-		parser.add_argument('CRN',type=str,required = True, help='CRN field is required.')
-		parser.add_argument('courseName',type=str,required = True, help='Course Name field is required.')
-		parser.add_argument('courseType',type=str,required = True,help='Course Type field is required.')
-		parser.add_argument('semester',type=str,required = True,help='Semester field is required.')
-		parser.add_argument('courseYear',type=str,required = True,help='Course Year field is required.')
 		args = parser.parse_args()
-		me = Course(args['CRN'],args['courseName'],args['courseType'],args['semester'],args['courseYear'])
+		me = Course(args['crn'],args['course_name'],args['course_type'],args['semester'],args['course_year'])
 		session.add(me)
 		session.commit() #commits to a database
 		return me

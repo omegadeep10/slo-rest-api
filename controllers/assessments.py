@@ -2,7 +2,7 @@ from flask_jwt import jwt_required, current_identity
 from flask_restful import Resource
 from controllers.auth import checkadmin
 from db import session
-from user import User
+from faculty import Faculty
 
 class Assessments(Resource):
   @jwt_required()

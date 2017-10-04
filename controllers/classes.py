@@ -49,7 +49,7 @@ class ClassesList(Resource):
 		return session.query(Course).filter(Course.CRN == class_CRN).one_or_none()
 	
 	def post(self):
-		args = parser.parse_args()
+		parsed_args = courseParser.parse_args()
 		me = Course(args['crn'],args['course_name'],args['course_type'],args['semester'],args['course_year'])
 		session.add(me)
 		session.commit() #commits to a database

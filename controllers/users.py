@@ -7,6 +7,7 @@ from user import Faculty
 user_fields = {
 	'id': fields.Integer,
 	'email': fields.String,
+	'faculty_id': fields.String
 	'fname': fields.String,
 	'lname': fields.String,
 	'userType': fields.String

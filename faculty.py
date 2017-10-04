@@ -14,15 +14,15 @@ class Faculty(Base):
     first_name = Column(String(255))
     last_name = Column(String(255))
     password = Column(String(255))
-    userType = Column(String(1))
+    user_type = Column(String(1))
     
     def __str__(self):
        return "User object: (id='%s')" % self.id
 
-    def __init__(self,email,faculty_id,first_name,last_name,password,userType):
+    def __init__(self,email,faculty_id,first_name,last_name,password,user_type):
         self.email = email
         self.faculty_id = faculty_id
         self.first_name = first_name
         self.last_name = last_name
         self.password = password
-        self.userType = userType 
+        self.user_type = user_type 

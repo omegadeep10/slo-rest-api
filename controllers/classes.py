@@ -48,7 +48,7 @@ class ClassesList(Resource):
 	
 	def post(self):
 		args = classParser.parse_args()
-		me = Course(args['crn'],args['course_name'],args['course_type'],args['semester'],args['course_year'])
+		me = Course(args['crn'],args['faculty_id'],args['course_name'],args['course_type'],args['semester'],args['course_year'])
 		session.add(me)
 		session.commit() #commits to a database
 		return me

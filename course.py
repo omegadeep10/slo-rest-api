@@ -9,17 +9,17 @@ Base = declarative_base()
 class Course(Base):
     __tablename__ = 'Course'
     
-    CRN = Column(String(9), primary_key = True)
+    crn = Column(String(9), primary_key = True)
+    faculty_id = Column(String(9))
     course_name = Column(String(255))
     course_type = Column(String(25))
-    faculty_id = Column(String(9))
     semester = Column(String(6))
     course_year = Column(Date)
     
-    def __init__(self,CRN,course_name,course_type,faculty_id,semester,course_year):
-      self.CRN = CRN
+    def __init__(self,crn,faculty_id,course_name,course_type,semester,course_year):
+      self.crn = crn
+      self.faculty_id = faculty_id
       self.course_name = course_name
       self.course_type = course_type
-      self.faculty_id = faculty_id
       self.semester = semester
       self.course_year = course_year

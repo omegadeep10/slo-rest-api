@@ -27,6 +27,3 @@ def checkadmin(func):
       return func(*args, **kwargs)
     return abort(401)
   return wrapper
-
-# McKay trying to get a cache decorator working to timeout
-#def cached(timeout=5 * 60, )

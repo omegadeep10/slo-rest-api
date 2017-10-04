@@ -15,18 +15,11 @@ class_fields = {
   'course_year': fields.String(attribute=lambda x: x.course_year.year) # extract only the Year as a string
 }
 
-
 classParser = reqparse.RequestParser() 
-classParser.add_argument('crn', type=str, required=True, help='CRN is required.')
-classParser.add_argument('faculty_id', type=str, required=True, help='Faculty ID is required.')
-classParser.add_argument('course_name', type=str, required=True,help='Course name is required.')
-classParser.add_argument('course_type', type=str, required=True, help='Course type is required.')
-classParser.add_argument('semester', type=str, required=True, help='Semester is required.')
-classParser.add_argument('course_year', type=datetime.fromtimestamp, required=True, help='Course year is required.')
 
 class Classes(Resource):
   @jwt_required()
-  def get(self,CRN):
+  def get(self,crn):
     return {'data':'CRN'}
   
   def get_crn(self):
@@ -39,16 +32,23 @@ class Classes(Resource):
     return {'data4':'deleted successfully'}
   
 class ClassesList(Resource):
-	@jwt_required()
-	@marshal_with(class_fields)
-	def get(self):
-		args = classParser.parse_args()
-		class_CRN = args['CRN']
-		return session.query(Course).filter(Course.CRN == class_CRN).one_or_none()
-	
-	def post(self):
-		args = classParser.parse_args()
-		me = Course(args['crn'],args['faculty_id'],args['course_name'],args['course_type'],args['semester'],args['course_year'])
-		session.add(me)
-		session.commit() #commits to a database
-		return me
+  @jwt_required()7
+  @marshal_with(class_fields)
+  def get(self):
+    classParser.add_argument('crn', type=str, required=True, help='CRN is required.')
+    args = classParser.parse_args()
+    class_crn = args['crn']
+    return session.query(Course).filter(Course.crn == class_crn).one_or_none()
+
+  def post(self):
+    classParser.add_argument('crn', type=str, required=True, help='CRN is required.')
+    classParser.add_argument('faculty_id', type=str, required=True, help='Faculty ID is required.')
+    classParser.add_argument('course_name', type=str, required=True,help='Course name is required.')
+    classParser.add_argument('course_type', type=str, required=True, help='Course type is required.')
+    classParser.add_argument('semester', type=str, required=True, help='Semester is required.')
+    classParser.add_argument('course_year', type=datetime.fromtimestamp, required=True, help='Course year is required.')
+    args = classParser.parse_args()
+    me = Course(args['crn'],args['faculty_id'],args['course_name'],args['course_type'],args['semester'],args['course_year'])
+    session.add(me)
+    session.commit() #commits to a database
+    return me

@@ -9,7 +9,7 @@ Base = declarative_base()
 class Course(Base):
     __tablename__ = 'Course'
     
-    crn = Column(String(9), primary_key = True)
+    crn = Column(String(5), primary_key = True)
     faculty_id = Column(String(9))
     course_name = Column(String(255))
     course_type = Column(String(25))

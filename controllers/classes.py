@@ -35,10 +35,10 @@ class ClassesList(Resource):
   @jwt_required()
   @marshal_with(class_fields)
   def get(self):
-    classParser.add_argument('crn', type=str, required=True, help='CRN is required.')
+    classParser.add_argument('faculty_id', type=str, required=True, help='Faculty ID is required.')
     args = classParser.parse_args()
-    class_crn = args['crn']
-    return session.query(Course).filter(Course.crn == class_crn).one_or_none()
+    user_id = args['faculty_id']
+    return session.query(Course).filter(Course.faculty_id == user_id).all()
 
   def post(self):
     classParser.add_argument('crn', type=str, required=True, help='CRN is required.')

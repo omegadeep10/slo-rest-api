@@ -12,7 +12,7 @@ class Course(Base):
     CRN = Column(String(9), primary_key = True)
     course_name = Column(String(255))
     course_type = Column(String(25))
-    faculty_id = Column(Integer(9))
+    faculty_id = Column(String(9))
     semester = Column(String(6))
     course_year = Column(Date)
     

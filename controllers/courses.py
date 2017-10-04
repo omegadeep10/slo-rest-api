@@ -38,8 +38,10 @@ class Course(Resource):
     if (course):
       session.delete(course)
       session.commit()
-    
-    return {}, 201
+      return {}, 204
+      
+    else:
+      abort(404, message="Course with the crn {} doesn't exist".format(crn))
 
 
 class CourseList(Resource):

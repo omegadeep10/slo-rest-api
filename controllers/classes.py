@@ -16,13 +16,13 @@ class_fields = {
 }
 
 
-courseParser = reqparse.RequestParser()
-courseParser.add_argument('crn', type=str, required=True)
-courseParser.add_argument('faculty_id', type=str, required=True)
-courseParser.add_argument('course_name', type=str, required=True)
-courseParser.add_argument('course_type', type=str, required=True)
-courseParser.add_argument('semester', type=str, required=True)
-courseParser.add_argument('course_year', type=datetime.fromtimestamp, required=True)
+classParser = reqparse.RequestParser() 
+classParser.add_argument('crn', type=str, required=True, help='CRN is required.')
+classParser.add_argument('faculty_id', type=str, required=True, help='Faculty ID is required.')
+classParser.add_argument('course_name', type=str, required=True,help='Course name is required.')
+classParser.add_argument('course_type', type=str, required=True, help='Course type is required.')
+classParser.add_argument('semester', type=str, required=True, help='Semester is required.')
+classParser.add_argument('course_year', type=datetime.fromtimestamp, required=True, help='Course year is required.')
 
 class Classes(Resource):
   @jwt_required()
@@ -42,14 +42,12 @@ class ClassesList(Resource):
 	@jwt_required()
 	@marshal_with(class_fields)
 	def get(self):
-		parser = reqparse.RequestParser()
-		parser.add_argument('CRN',type=str,required = True, help='CRN field is required.')
-		args = parser.parse_args()
+		args = classParser.parse_args()
 		class_CRN = args['CRN']
 		return session.query(Course).filter(Course.CRN == class_CRN).one_or_none()
 	
 	def post(self):
-		parsed_args = courseParser.parse_args()
+		args = classParser.parse_args()
 		me = Course(args['crn'],args['course_name'],args['course_type'],args['semester'],args['course_year'])
 		session.add(me)
 		session.commit() #commits to a database

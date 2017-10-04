@@ -10,16 +10,16 @@ class Course(Base):
     __tablename__ = 'Course'
     
     CRN = Column(String(9), primary_key = True)
-    courseName = Column(String(150))
-    courseType = Column(String(25))
-    id = Column(Integer)
+    course_name = Column(String(255))
+    course_type = Column(String(25))
+    faculty_id = Column(Integer(9))
     semester = Column(String(6))
-    courseYear = Column(Date)
+    course_year = Column(Date)
     
-    def __init__(self,CRN,courseName,courseType,id,semester,courseYear):
+    def __init__(self,CRN,course_name,course_type,faculty_id,semester,course_year):
       self.CRN = CRN
-      self.courseName = courseName
-      self.courseType = courseType
-      self.id = id
+      self.course_name = course_name
+      self.course_type = course_type
+      self.faculty_id = faculty_id
       self.semester = semester
-      self.courseYear = courseYear
+      self.course_year = course_year

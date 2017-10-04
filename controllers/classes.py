@@ -4,7 +4,7 @@ from controllers.auth import checkadmin
 from db import session
 from course import Course 
 import sys
-import datetime
+from datetime import datetime
 
 class_fields = {
   'crn': fields.String,

@@ -8,9 +8,9 @@ user_fields = {
 	'id': fields.Integer,
 	'email': fields.String,
 	'faculty_id': fields.String
-	'fname': fields.String,
-	'lname': fields.String,
-	'userType': fields.String
+	'first_name': fields.String,
+	'last_name': fields.String,
+	'user_type': fields.String
 }
 
 class User(Resource):

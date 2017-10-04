@@ -8,11 +8,11 @@ Base = declarative_base()
 class Score(Base):
     __tablename__ = 'Score'
     
-    perfID = Column(Char(5) primary_key=True),
-    assessID = Column(Integer(7) primary_key=True),
-    scoreVal = Column(Integer(2))
+    performance_indicator_id = Column(String(500) primary_key=True),
+    assessment_id = Column(Integer(11) primary_key=True),
+    score = Column(Integer(11))
     
-    def __init__(self,perfID,assessID,scoreVal):
-      self.perfID = perfID
-      self.assessID = assessID
-      self.scoreVal = scoreVal
+    def __init__(self,performance_indicator_id,assessment_id,score):
+      self.performance_indicator_id = performance_indicator_id
+      self.assessment_id = assessment_id
+      self.score = score

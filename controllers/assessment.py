@@ -7,10 +7,10 @@ from models.Faculty import Faculty
 class Assessment(Resource):
   @jwt_required()
   def get(self,assessment_id):
-    return {'data1': 'assessment_id'}
+    return 
   
   def post(self):
-    return {'data2':'post assessment object'}
+    return {'data':'post assessment object'}
   
   def put(self):
     return {'data3':'assessment updated'}
@@ -21,4 +21,4 @@ class Assessment(Resource):
 class AssessmentList(Resource):
   @jwt_required()
   def get(self):
-    return {'assessments':'assessments list'}
+    

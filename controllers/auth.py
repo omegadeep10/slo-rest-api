@@ -1,5 +1,5 @@
 from db import session
-from faculty import Faculty
+from models.Faculty import Faculty
 from flask_jwt import JWT, jwt_required, current_identity
 from flask_restful import abort
 from functools import wraps

@@ -21,4 +21,4 @@ class Assessment(Resource):
 class AssessmentList(Resource):
   @jwt_required()
   def get(self):
-    
+    return {'data':'blah'}

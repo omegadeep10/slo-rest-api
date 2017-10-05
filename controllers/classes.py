@@ -15,7 +15,13 @@ class_fields = {
   'course_year': fields.String(attribute=lambda x: x.course_year.year) # extract only the Year as a string
 }
 
-classParser = reqparse.RequestParser() 
+classParser = reqparse.RequestParser()
+classParser.add_argument('crn', type=str, required=True, help='CRN is required.')
+classParser.add_argument('faculty_id', type=str, required=True, help='Faculty ID is required.')
+classParser.add_argument('course_name', type=str, required=True,help='Course name is required.')
+classParser.add_argument('course_type', type=str, required=True, help='Course type is required.')
+classParser.add_argument('semester', type=str, required=True, help='Semester is required.')
+classParser.add_argument('course_year', type=datetime.fromtimestamp, required=True, help='Course year is required.')
 
 class Classes(Resource):
   @jwt_required()
@@ -35,20 +41,12 @@ class ClassesList(Resource):
   @jwt_required()
   @marshal_with(class_fields)
   def get(self):
-    classParser.add_argument('faculty_id', type=str, required=True, help='Faculty ID is required.')
-    args = classParser.parse_args()
-    user_id = args['faculty_id']
-    return session.query(Course).filter(Course.faculty_id == user_id).all()
-
+    return session.query(Course).filter(Course.faculty_id == current_identity.faculty_id).all()
+  
+  @marshal_with(class_fields)
   def post(self):
-    classParser.add_argument('crn', type=str, required=True, help='CRN is required.')
-    classParser.add_argument('faculty_id', type=str, required=True, help='Faculty ID is required.')
-    classParser.add_argument('course_name', type=str, required=True,help='Course name is required.')
-    classParser.add_argument('course_type', type=str, required=True, help='Course type is required.')
-    classParser.add_argument('semester', type=str, required=True, help='Semester is required.')
-    classParser.add_argument('course_year', type=datetime.fromtimestamp, required=True, help='Course year is required.')
     args = classParser.parse_args()
-    me = Course(args['crn'],args['faculty_id'],args['course_name'],args['course_type'],args['semester'],args['course_year'])
+    me = Course(args['crn'], args['faculty_id'], args['course_name'], args['course_type'], args['semester'], args['course_year'])
     session.add(me)
     session.commit() #commits to a database
     return me

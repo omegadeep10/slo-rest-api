@@ -18,7 +18,6 @@ jwt = JWT(app, authenticate, identity)
 
 
 # Importing various api resources
-from controllers.hello_world import HelloWorld, AdminProtected
 from controllers.register import Register
 from controllers.users import User
 from controllers.assessments import Assessments, AssessmentsList
@@ -27,8 +26,6 @@ from controllers.classes import Classes, ClassesList
 # NOTE: To obtain auth token, use the /auth endpoint, passing in a JSON object with email and password fields.
 #       This endpoint is not shown here since it's automatically setup by flask_jwt.
 
-api.add_resource(HelloWorld, '/')            #<base_url>/
-api.add_resource(AdminProtected, '/admin')   #<base_url/admin
 api.add_resource(Register, '/register')      #<base_url>/register
 api.add_resource(User,'/users')             #<base_url>/users
 api.add_resource(AssessmentsList,'/assessments')  #<base_url>/assessments

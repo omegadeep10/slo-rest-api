@@ -23,7 +23,7 @@ def identity(payload):
 def checkadmin(func):
   @wraps(func)
   def wrapper(*args, **kwargs):
-    if current_identity.user_type == "1":
+    if current_identity.user_type == "1": # One is the admin code
       return func(*args, **kwargs)
     return abort(401)
   return wrapper

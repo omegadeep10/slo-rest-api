@@ -1,7 +1,7 @@
 from flask_jwt import jwt_required, current_identity
 from flask_restful import Resource, fields, marshal_with, reqparse
 from db import session
-from models.Faculty import FacultyModel
+from models import FacultyModel
 
 user_fields = {
 	'id': fields.Integer,

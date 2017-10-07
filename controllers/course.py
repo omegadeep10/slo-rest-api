@@ -8,7 +8,7 @@ from datetime import datetime
 faculty_fields = {
 	'faculty_id': fields.String,
 	'first_name': fields.String,
-	'last_name': fields.String,
+	'last_name': fields.String
 }
 
 class_fields = {

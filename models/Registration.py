@@ -9,6 +9,9 @@ class Registration(Base):
     
     CRN = Column(String(9),primary_key=True)
     student_id = Column(String(9),primary_key=True)
+
+    def __str__(self):
+      return "Registration object: (crn='%s')" % self.crn
     
     def __init__(self,CRN,student_id):
       self.CRN = CRN

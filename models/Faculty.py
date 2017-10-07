@@ -17,7 +17,7 @@ class Faculty(Base):
     user_type = Column(String(1))
     
     def __str__(self):
-       return "User object: (id='%s')" % self.id
+       return "Faculty object: (id='%s')" % self.id
 
     def __init__(self,email,faculty_id,first_name,last_name,password,user_type):
         self.email = email

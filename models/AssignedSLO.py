@@ -12,7 +12,7 @@ class User(Base):
     CRN = Column(String(5), primary_key=True)
     
     def __str__(self):
-        return "User object: (id='%s')" % self.id
+        return "AssignedSLO object: (slo_id='%s')" % self.slo_id
       
     def __init__(self,slo_id, CRN):
       self.slo_id = slo_id

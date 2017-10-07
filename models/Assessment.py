@@ -15,7 +15,7 @@ class Assessment(Base):
     total_score = Column(Integer(11))
     
     def __str__(self):
-        return "User object: (id='%s')" % self.id
+        return "Assessment object: (assessment_id='%s')" % self.assessment_id
       
     def __init__(self,assessment_id,CRN,slo_id,student_id,total_score):
       self.assessment_id = assessment_id

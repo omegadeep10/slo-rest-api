@@ -11,6 +11,9 @@ class Student(Base):
     first_name = Column(String(255))
     last_name = Column(String(255))
     
+    def __str__(self):
+      return "Student object: (student_id='%s')" % self.student_id
+
     def __init__(self, student_id, first_name, last_name):
       self.student_id = student_id
       self.first_name = first_name

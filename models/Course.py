@@ -16,7 +16,7 @@ class Course(Base):
     semester = Column(String(6))
     course_year = Column(Date)
     
-    def __init__(self,crn,faculty_id,course_name,course_type,semester,course_year):
+    def __init__(self, crn, faculty_id ,course_name, course_type, semester, course_year):
       self.crn = crn
       self.faculty_id = faculty_id
       self.course_name = course_name

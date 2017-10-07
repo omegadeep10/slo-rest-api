@@ -19,10 +19,10 @@ class Faculty(Base):
     def __str__(self):
        return "User object: (id='%s')" % self.id
 
-    def __init__(self,email,faculty_id,first_name,last_name,password,user_type):
+    def __init__(self, email, faculty_id, first_name, last_name, password, user_type):
         self.email = email
         self.faculty_id = faculty_id
         self.first_name = first_name
         self.last_name = last_name
         self.password = password
-        self.user_type = user_type 
+        self.user_type = user_type

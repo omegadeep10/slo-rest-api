@@ -1,17 +1,42 @@
-from sqlalchemy import Column, Integer, String, Date
+from sqlalchemy import Column, Integer, String, Date, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship
 
 Base = declarative_base()
+
+class FacultyModel(Base):
+    __tablename__ = 'Faculty'
+    
+    id = Column(Integer, primary_key=True)
+    email = Column(String(255))
+    faculty_id = Column(String(9))
+    first_name = Column(String(255))
+    last_name = Column(String(255))
+    password = Column(String(255))
+    user_type = Column(String(1))
+    courses = relationship("CourseModel", back_populates="faculty")
+    
+    def __str__(self):
+       return "Faculty object: (id='%s')" % self.id
+
+    def __init__(self, email, faculty_id, first_name, last_name, password, user_type):
+        self.email = email
+        self.faculty_id = faculty_id
+        self.first_name = first_name
+        self.last_name = last_name
+        self.password = password
+        self.user_type = user_type
 
 class CourseModel(Base):
     __tablename__ = 'Course'
 
     crn = Column(String(5), primary_key=True)
-    faculty_id = Column(String(9), unique=True, nullable=False)
+    faculty_id = Column(String(9), ForeignKey('Faculty.faculty_id'), nullable=False)
     course_name = Column(String(255), nullable=False)
     course_type = Column(String(25))
     semester = Column(String(6))
     course_year = Column(Date)
+    faculty = relationship("FacultyModel", back_populates="courses")
 
     def __str__(self):
       return "Course object: (crn='%s')" % self.crn

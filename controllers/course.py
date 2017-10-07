@@ -5,13 +5,19 @@ from db import session
 from models.Course import CourseModel
 from datetime import datetime
 
+faculty_fields = {
+	'faculty_id': fields.String,
+	'first_name': fields.String,
+	'last_name': fields.String,
+}
+
 class_fields = {
   'crn': fields.String,
-  'faculty_id': fields.String,
   'course_name': fields.String,
   'course_type': fields.String,
   'semester': fields.String,
-  'course_year': fields.String(attribute=lambda x: x.course_year.year) # extract only the Year as a string
+  'course_year': fields.String(attribute=lambda x: x.course_year.year), # extract only the Year as a string
+  'faculty': fields.Nested(faculty_fields)
 }
 
 # Default class parser.
@@ -38,15 +44,18 @@ class Course(Resource):
     args = classParserCopy.parse_args()
 
     course = session.query(CourseModel).filter(CourseModel.crn == crn).first()
-    course.faculty_id = args['faculty_id']
-    course.course_name = args['course_name']
-    course.course_type = args['course_type']
-    course.course_year = args['course_year']
-    course.semester = args['semester']
+    if (course):
+      course.faculty_id = args['faculty_id']
+      course.course_name = args['course_name']
+      course.course_type = args['course_type']
+      course.course_year = args['course_year']
+      course.semester = args['semester']
 
-    session.commit()
-    return course
-    
+      session.commit()
+      return course
+
+    else:
+      return abort(404, message="Course with the crn {} doesn't exist".format(crn))
   
   @jwt_required()
   def delete(self, crn):

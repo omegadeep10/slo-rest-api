@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
-class Score(Base):
+class ScoreModel(Base):
     __tablename__ = 'Score'
     
     performance_indicator_id = Column(String(500) primary_key=True),

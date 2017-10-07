@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
-class Registration(Base):
+class RegistrationModel(Base):
     __tablename__ = 'Registration'
     
     CRN = Column(String(9),primary_key=True)

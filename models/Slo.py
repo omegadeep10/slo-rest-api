@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
-class SLO(Base):
+class SLOModel(Base):
   __tablename__ = 'SLO'
 
   slo_id = Column(String(9),primary_key = True)

@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
-class Assessment(Base):
+class AssessmentModel(Base):
     __tablename__ = 'assessment'
 
     assessment_id = Column(Integer(11), primary_key=True)

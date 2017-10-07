@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
-class Faculty(Base):
+class FacultyModel(Base):
     __tablename__ = 'Faculty'
     
     id = Column(Integer, primary_key=True)

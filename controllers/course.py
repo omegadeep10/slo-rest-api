@@ -11,6 +11,12 @@ faculty_fields = {
 	'last_name': fields.String
 }
 
+student_fields = {
+	'student_id': fields.String,
+	'first_name': fields.String,
+	'last_name': fields.String
+}
+
 class_fields = {
   'crn': fields.String,
   'course_name': fields.String,
@@ -18,6 +24,17 @@ class_fields = {
   'semester': fields.String,
   'course_year': fields.String(attribute=lambda x: x.course_year.year), # extract only the Year as a string
   'faculty': fields.Nested(faculty_fields)
+}
+
+
+class_detailed_fields = {
+  'crn': fields.String,
+  'course_name': fields.String,
+  'course_type': fields.String,
+  'semester': fields.String,
+  'course_year': fields.String(attribute=lambda x: x.course_year.year), # extract only the Year as a string
+  'faculty': fields.Nested(faculty_fields),
+  'students': fields.List(fields.Nested(student_fields))
 }
 
 # Default class parser.
@@ -31,7 +48,7 @@ classParser.add_argument('course_year', type=datetime.fromtimestamp, required=Tr
 
 class Course(Resource):
   @jwt_required()
-  @marshal_with(class_fields)
+  @marshal_with(class_detailed_fields)
   def get(self, crn):
     return session.query(CourseModel).filter(CourseModel.crn == crn).first()
   

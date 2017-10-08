@@ -1,8 +1,32 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 
 Base = declarative_base()
+
+registration = Table('Registration', Base.metadata,
+    Column('crn', String(5), ForeignKey('Course.crn')),
+    Column('student_id', String(9), ForeignKey('Student.student_id'))
+)
+
+# ASSOCIATIVE TABLES THAT NEED TO BE MAPPED LIKE ABOVE
+
+class AssignedSLOModel(Base):
+    __tablename__ = 'AssignedSLO'
+
+    slo_id = Column(String(3), primary_key=True)
+    crn = Column(String(5), primary_key=True)
+    
+    def __str__(self):
+        return "AssignedSLO object: (slo_id='%s')" % self.slo_id
+      
+    def __init__(self,slo_id, crn):
+      self.slo_id = slo_id
+      self.crn = crn
+
+
+
+# REGULAR TABLES
 
 class CourseModel(Base):
     __tablename__ = 'Course'
@@ -14,6 +38,7 @@ class CourseModel(Base):
     semester = Column(String(6))
     course_year = Column(Date)
     faculty = relationship("FacultyModel", back_populates="courses")
+    students = relationship("StudentModel", secondary=registration)
 
     def __str__(self):
       return "Course object: (crn='%s')" % self.crn
@@ -25,6 +50,23 @@ class CourseModel(Base):
       self.course_type = course_type
       self.semester = semester
       self.course_year = course_year
+
+
+class StudentModel(Base):
+    __tablename__ = 'Student'
+    
+    student_id = Column(String(9), primary_key=True)
+    first_name = Column(String(255))
+    last_name = Column(String(255))
+    
+    def __str__(self):
+      return "Student object: (student_id='%s')" % self.student_id
+
+    def __init__(self, student_id, first_name, last_name):
+      self.student_id = student_id
+      self.first_name = first_name
+      self.last_name = last_name
+
 
 
 
@@ -53,43 +95,12 @@ class FacultyModel(Base):
 
 
 
-class RegistrationModel(Base):
-    __tablename__ = 'Registration'
-    
-    CRN = Column(String(9),primary_key=True)
-    student_id = Column(String(9),primary_key=True)
-
-    def __str__(self):
-      return "Registration object: (crn='%s')" % self.crn
-    
-    def __init__(self,CRN,student_id):
-      self.CRN = CRN
-      self.student_id = student_id
-
-
-
-class StudentModel(Base):
-    __tablename__ = 'Student'
-    
-    student_id = Column(String(255), primary_key=True)
-    first_name = Column(String(255))
-    last_name = Column(String(255))
-    
-    def __str__(self):
-      return "Student object: (student_id='%s')" % self.student_id
-
-    def __init__(self, student_id, first_name, last_name):
-      self.student_id = student_id
-      self.first_name = first_name
-      self.last_name = last_name
-
-
 
 class AssessmentModel(Base):
     __tablename__ = 'assessment'
 
     assessment_id = Column(Integer, primary_key=True)
-    CRN = Column(String(5))
+    crn = Column(String(5))
     slo_id = Column(String(3))
     student_id = Column(String(9))
     total_score = Column(Integer)
@@ -97,9 +108,9 @@ class AssessmentModel(Base):
     def __str__(self):
         return "Assessment object: (assessment_id='%s')" % self.assessment_id
       
-    def __init__(self, assessment_id, CRN, slo_id, student_id, total_score):
+    def __init__(self, assessment_id, crn, slo_id, student_id, total_score):
       self.assessment_id = assessment_id
-      self.CRN = CRN
+      self.crn = crn
       self.slo_id = slo_id
       self.student_id = student_id
       self.total_score = total_score
@@ -121,25 +132,10 @@ class SLOModel(Base):
 
 
 
-class AssignedSLOModel(Base):
-    __tablename__ = 'AssignedSLO'
-
-    slo_id = Column(String(3), primary_key=True)
-    CRN = Column(String(5), primary_key=True)
-    
-    def __str__(self):
-        return "AssignedSLO object: (slo_id='%s')" % self.slo_id
-      
-    def __init__(self,slo_id, CRN):
-      self.slo_id = slo_id
-      self.CRN = CRN
-
-
-
 class PerfIndicatorModel(Base):
     __tablename__ = 'PerformanceIndicator'
     
-    performance_indicator_id = Column(String(5),primary_key=True)
+    performance_indicator_id = Column(String(5), primary_key=True)
     slo_id = Column(String(3))
     performance_indicator_description = Column(String(255))
     unsatisfactory_description = Column(String(255))

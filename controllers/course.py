@@ -23,6 +23,7 @@ class_fields = {
   'course_type': fields.String,
   'semester': fields.String,
   'course_year': fields.String(attribute=lambda x: x.course_year.year), # extract only the Year as a string
+  'comments': fields.String,
   'faculty': fields.Nested(faculty_fields)
 }
 
@@ -45,6 +46,7 @@ classParser.add_argument('course_name', type=str, required=True,help='Course nam
 classParser.add_argument('course_type', type=str, required=True, help='Course type is required.')
 classParser.add_argument('semester', type=str, required=True, help='Semester is required.')
 classParser.add_argument('course_year', type=datetime.fromtimestamp, required=True, help='Course year is required.')
+classParser.add_argument('comments',type=str)
 
 class Course(Resource):
   @jwt_required()
@@ -97,7 +99,7 @@ class CourseList(Resource):
   @marshal_with(class_fields)
   def post(self):
     args = classParser.parse_args()
-    newCourse = CourseModel(args['crn'], args['faculty_id'], args['course_name'], args['course_type'], args['semester'], args['course_year'])
+    newCourse = CourseModel(args['crn'], args['faculty_id'], args['course_name'], args['course_type'], args['semester'], args['course_year'],args['comments'])
     session.add(newCourse)
     session.commit() #commits to a database
     return newCourse

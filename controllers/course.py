@@ -73,6 +73,7 @@ class Course(Resource):
 
     else:
       return abort(404, message="Course with the crn {} doesn't exist".format(crn))
+
   
   @jwt_required()
   def delete(self, crn):
@@ -95,7 +96,7 @@ class CourseList(Resource):
   
   @jwt_required()
   @marshal_with(class_fields)
-  def post(self):
+  def post(self): #post method
     args = classParser.parse_args()
     newCourse = CourseModel(args['crn'], args['faculty_id'], args['course_name'], args['course_type'], args['semester'], args['course_year'])
     session.add(newCourse)

@@ -1,6 +1,9 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey, Table
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
+from werkzeug.security import generate_password_hash, check_password_hash
+from sqlalchemy.ext.hybrid import hybrid_property
+import sys
 
 Base = declarative_base()
 
@@ -78,9 +81,23 @@ class FacultyModel(Base):
     faculty_id = Column(String(9))
     first_name = Column(String(255))
     last_name = Column(String(255))
-    password = Column(String(255))
+    _password = Column('password',String(255))
     user_type = Column(String(1))
     courses = relationship("CourseModel", back_populates="faculty")
+    @hybrid_property
+    def password(self):
+      return self._password
+
+    @password.setter
+    def set_password(self, password):
+      self._password = generate_password_hash(password)
+
+    def check_password(self, password):
+      print(password,file=sys.stderr)
+      if check_password_hash(self._password, password):
+        return True
+
+      return False
     
     def __str__(self):
        return "Faculty object: (id='%s')" % self.id

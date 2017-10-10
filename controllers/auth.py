@@ -9,8 +9,11 @@ import sys
 # The authentication handler used by flask_JWT. Takes an email and password
 def authenticate(email, password):
   #Query the database and return the ONE user that has the matching email/password. If user doesn't exist, return None
-  return session.query(FacultyModel).filter(FacultyModel.email == email, FacultyModel.password == password).one_or_none()
-
+  faculty = session.query(FacultyModel).filter(FacultyModel.email == email).one_or_none()
+  if (faculty and faculty.check_password(password)):
+    return faculty
+  else:
+    return None
 
 # payload = JWT token sent by the user (as a header attribute)
 # gets the ID stored within the token and returns the user object using the id to query the database

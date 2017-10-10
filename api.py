@@ -25,7 +25,7 @@ from controllers.user import User
 from controllers.assessment import Assessment, AssessmentList
 from controllers.course import Course, CourseList
 from controllers.student import Student
-from controllers.slo import slo
+from controllers.slo import SLO
 
 # NOTE: To obtain auth token, use the /auth endpoint, passing in a JSON object with email and password fields.
 #       This endpoint is not shown here since it's automatically setup by flask_jwt.
@@ -37,7 +37,7 @@ api.add_resource(Assessment,'/assessment/<int:assessment_id>') #<base_url>/asses
 api.add_resource(CourseList,'/courses')         #<base_url>/classes
 api.add_resource(Course,'/course/<string:crn>')  #<base_url>/classes/<CRN>
 api.add_resource(Student,'/student')             #<base_url>/student
-api.add_resource(slo, '/slo/<int:slo_id'>)
+api.add_resource(SLO, '/slo/<int:slo_id'>)      #<base)url
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, debug=True) # runs on an internal ip at port 3000 that codeanywhere's linux box automatically maps to external IP

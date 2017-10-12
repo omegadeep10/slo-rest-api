@@ -2,11 +2,12 @@ from flask_jwt import jwt_required, current_identity
 from flask_restful import Resource
 from controllers.auth import checkadmin
 from db import session
+from models import AssessmentModel
 
 class Assessment(Resource):
   @jwt_required()
   def get(self,assessment_id):
-    return 
+    return session.query(AssessmentModel).filter(AssessmentModel.assessment_id == assessment_id)
   
   def post(self):
     return {'data':'post assessment object'}
@@ -20,4 +21,4 @@ class Assessment(Resource):
 class AssessmentList(Resource):
   @jwt_required()
   def get(self):
-    return {'data':'blah'}
+    return session.query(AssessmentModel).filter(AssessmentModel)

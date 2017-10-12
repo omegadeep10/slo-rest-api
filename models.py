@@ -42,7 +42,7 @@ class CourseModel(Base):
     course_year = Column(Date)
     comments = Column(String(2500))
     faculty = relationship("FacultyModel", back_populates="courses")
-    students = relationship("StudentModel", secondary=registration)
+    students = relationship("StudentModel", secondary=registration,back_populates="courses")
 
     def __str__(self):
       return "Course object: (crn='%s')" % self.crn
@@ -63,6 +63,7 @@ class StudentModel(Base):
     student_id = Column(String(9), primary_key=True)
     first_name = Column(String(255))
     last_name = Column(String(255))
+    courses = relationship("CourseModel",secondary=registration,back_populates="students")
     
     def __str__(self):
       return "Student object: (student_id='%s')" % self.student_id
@@ -141,6 +142,7 @@ class SLOModel(Base):
 
   slo_id = Column(String(9),primary_key = True)
   slo_description = Column(String(255))
+  performance_indicators = relationship("PerfIndicatorModel", back_populates="slos")
 
   def __str__(self):
     return "SLO object: (slo_id='%s')" % self.slo_id
@@ -155,12 +157,13 @@ class PerfIndicatorModel(Base):
     __tablename__ = 'PerformanceIndicator'
     
     performance_indicator_id = Column(String(5), primary_key=True)
-    slo_id = Column(String(3))
+    slo_id = Column(String(3), ForeignKey('SLO.slo_id'))
     performance_indicator_description = Column(String(255))
     unsatisfactory_description = Column(String(255))
     developing_description = Column(String(255))
     satisfactory_description = Column(String(255))
-    exempary_description = Column(String(255))
+    exemplary_description = Column(String(255))
+    slos = relationship("SLOModel", back_populates="performance_indicators")
 
     def __str__(self):
       return "PerfIndicator object: (performance_indicator_id='%s')" % self.performance_indicator_id

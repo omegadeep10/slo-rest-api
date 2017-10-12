@@ -13,7 +13,7 @@ student_fields = {
 	'student_id': fields.String,
 	'first_name': fields.String,
 	'last_name': fields.String,
-    'courses': fields.Nested(course_fields)
+    'courses': fields.List(fields.Nested(course_fields))
 }
 
 parser = reqparse.RequestParser()
@@ -26,12 +26,15 @@ class Student(Resource):
     @jwt_required()
     @marshal_with(student_fields)
     def post(self):
-        args = parser.parse_args()
-        student = StudentModel(args['student_id'],args['first_name'],args['last_name'])
-        course = session.query(CourseModel).filter(CourseModel.crn == args['crn']).one_or_none()
-        if course:
-            session.add(student)
-            course.students.append(student)
-            student.courses
-            session.commit()
-        return session.query(StudentModel).filter(StudentModel.student_id == args['student_id']).first()
+        args = parser.parse_args() #gets the input
+        student = session.query(StudentModel).filter(StudentModel.student_id == args['student_id']).first() #queries the db for student using input
+        course = session.query(CourseModel).filter(CourseModel.crn == args['crn']).one_or_none() #queries the db for the course
+        if not student: #if student doesn't exist, it adds the student to the student table
+            student = StudentModel(args['student_id'],args['first_name'],args['last_name']) #puts this in db
+        if course: #if course exists, it adds info to the db
+            session.add(student) #adds the info
+            course.students.append(student) #adds student to the course
+            session.commit() #commits it to db
+            return student 
+        else: #if course doesn't exist
+            abort(404, message='Course does not exist.')

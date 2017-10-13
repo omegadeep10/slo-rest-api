@@ -6,9 +6,9 @@ from models import AssessmentModel
 import sys, pickle
 
 parser = reqparse.RequestParser()
-parser.add_argument('student_id', type=str, required = True, help='Email field is required.')
-parser.add_argument('slo_id', type=str, required = True, help='Student First Name field is required.')
-parser.add_argument('last_name', type=str, required = True, help='L is required.')
+parser.add_argument('student_id', type=str, required = True, help='Student ID field is required.')
+parser.add_argument('slo_id', type=str, required = True, help='SLO ID field is required.')
+parser.add_argument('total_score', type=str, required = True, help='Total Score is required.')
 parser.add_argument('crn', type=str, required = True, help='CRN field is required.')
 
 faculty_fields = {
@@ -70,3 +70,13 @@ class AssessmentList(Resource):
   @marshal_with(assessment_fields)
   def get(self, crn):
     return session.query(AssessmentModel).filter(AssessmentModel.crn == crn).all()
+
+class NewAssessment(Resource):
+  @jwt_required()
+  @marshal_with(assessment_fields)
+  def post(self):
+    args = parser.parse_args()
+    newAssessment = AssessmentModel(args['student_id'],args['slo_id'],args['total_score'],args['crn'])
+    session.add(newAssessment)
+    session.commit()
+    return newAssessment

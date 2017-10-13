@@ -132,7 +132,7 @@ class SLOModel(Base):
   slo_id = Column(String(9),primary_key = True)
   slo_description = Column(String(255))
   performance_indicators = relationship("PerfIndicatorModel", back_populates="slos")
-  courses = relationship("CourseModel",secondary=assignedslo, back_populates="courses")
+  courses = relationship("CourseModel",secondary=assignedslo, back_populates="slos")
 
   def __str__(self):
     return "SLO object: (slo_id='%s')" % self.slo_id

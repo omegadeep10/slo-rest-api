@@ -12,22 +12,10 @@ registration = Table('Registration', Base.metadata,
     Column('student_id', String(9), ForeignKey('Student.student_id'))
 )
 
-# ASSOCIATIVE TABLES THAT NEED TO BE MAPPED LIKE ABOVE
-
-class AssignedSLOModel(Base):
-    __tablename__ = 'AssignedSLO'
-
-    slo_id = Column(String(3), primary_key=True)
-    crn = Column(String(5), primary_key=True)
-    
-    def __str__(self):
-        return "AssignedSLO object: (slo_id='%s')" % self.slo_id
-      
-    def __init__(self,slo_id, crn):
-      self.slo_id = slo_id
-      self.crn = crn
-
-
+assignedslo = Table('AssignedSLO',Base.metadata,
+    Column('crn', String(5), ForeignKey('Course.crn')),
+    Column('slo_id', String(3), ForeignKey('SLO.slo_id'))
+)
 
 # REGULAR TABLES
 
@@ -43,6 +31,7 @@ class CourseModel(Base):
     comments = Column(String(2500))
     faculty = relationship("FacultyModel", back_populates="courses")
     students = relationship("StudentModel", secondary=registration,back_populates="courses")
+    slos = relationship("SLOModel",secondary=assignedslo)
 
     def __str__(self):
       return "Course object: (crn='%s')" % self.crn
@@ -143,6 +132,7 @@ class SLOModel(Base):
   slo_id = Column(String(9),primary_key = True)
   slo_description = Column(String(255))
   performance_indicators = relationship("PerfIndicatorModel", back_populates="slos")
+  courses = relationship("CourseModel",secondary=assignedslo, back_populates="courses")
 
   def __str__(self):
     return "SLO object: (slo_id='%s')" % self.slo_id

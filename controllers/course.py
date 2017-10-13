@@ -17,6 +17,10 @@ student_fields = {
 	'last_name': fields.String
 }
 
+slo_fields = {
+  'slo_id': fields.String
+}
+
 class_fields = {
   'crn': fields.String,
   'course_name': fields.String,
@@ -24,7 +28,8 @@ class_fields = {
   'semester': fields.String,
   'course_year': fields.String(attribute=lambda x: x.course_year.year), # extract only the Year as a string
   'comments': fields.String,
-  'faculty': fields.Nested(faculty_fields)
+  'faculty': fields.Nested(faculty_fields),
+  'assigned_slos': fields.Nested(slo_fields)
 }
 
 

@@ -32,7 +32,7 @@ from controllers.slo import SLO
 
 api.add_resource(Register, '/register')      #<base_url>/register
 api.add_resource(User,'/users')             #<base_url>/users
-api.add_resource(AssessmentList,'/assessments')  #<base_url>/assessments
+api.add_resource(AssessmentList,'/assessments/<string:crn>')  #<base_url>/assessments
 api.add_resource(Assessment,'/assessment/<int:assessment_id>') #<base_url>/assessments/<assessment_id>
 api.add_resource(CourseList,'/courses')         #<base_url>/classes
 api.add_resource(Course,'/course/<string:crn>')  #<base_url>/classes/<CRN>

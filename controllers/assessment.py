@@ -67,5 +67,6 @@ class Assessment(Resource):
   
 class AssessmentList(Resource):
   @jwt_required()
-  def get(self):
-    return session.query(AssessmentModel).filter(AssessmentModel)
+  @marshal_with(assessment_fields)
+  def get(self, crn):
+    return session.query(AssessmentModel).filter(AssessmentModel.crn == crn).all()

@@ -6,10 +6,11 @@ from models import AssessmentModel
 import sys, pickle
 
 parser = reqparse.RequestParser()
-parser.add_argument('student_id', type=str, required = True, help='Student ID field is required.')
+parser.add_argument('crn', type=str, required = True, help='Student ID field is required.')
 parser.add_argument('slo_id', type=str, required = True, help='SLO ID field is required.')
-parser.add_argument('total_score', type=str, required = True, help='Total Score is required.')
-parser.add_argument('crn', type=str, required = True, help='CRN field is required.')
+parser.add_argument('student_id', type=str, required = True, help='Total Score is required.')
+parser.add_argument('performance_indicator_id', type=str, required= True, help='Performance Indicator ID is required')
+parser.add_argument('score', type=int, required= True, help='Score is required')
 
 faculty_fields = {
 	'faculty_id': fields.String,
@@ -76,7 +77,7 @@ class NewAssessment(Resource):
   @marshal_with(assessment_fields)
   def post(self):
     args = parser.parse_args()
-    newAssessment = AssessmentModel(args['student_id'],args['slo_id'],args['total_score'],args['crn'])
+    newAssessment = AssessmentModel(args['crn'],args['slo_id'],args['student_id'],args['performance_indicator_id'],args['score'])
     session.add(newAssessment)
     session.commit()
     return newAssessment

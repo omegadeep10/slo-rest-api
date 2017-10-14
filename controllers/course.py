@@ -11,7 +11,6 @@ class_extra_fields = {
   'slos': fields.Nested(slo_fields)
 }
 
-
 class_student_fields = {
   'students': fields.List(fields.Nested(student_fields)),
 }

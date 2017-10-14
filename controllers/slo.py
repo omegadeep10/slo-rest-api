@@ -13,6 +13,6 @@ slo_detailed_fields = {
 class SLO(Resource):
     @jwt_required()
     @marshal_with({**slo_fields, **slo_detailed_fields})
-    def get(self,slo_id):
+    def get(self, slo_id):
         return session.query(SLOModel).filter(SLOModel.slo_id == slo_id).first()
         

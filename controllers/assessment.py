@@ -2,7 +2,7 @@ from flask_jwt import jwt_required, current_identity
 from flask_restful import Resource, reqparse, marshal_with, fields, abort
 from controllers.auth import checkadmin
 from db import session
-from models import AssessmentModel
+from models import AssessmentModel, ScoreModel, PerfIndicatorModel, CourseModel, StudentModel, SLOModel
 import sys, pickle
 
 parser = reqparse.RequestParser()
@@ -77,7 +77,40 @@ class NewAssessment(Resource):
   @marshal_with(assessment_fields)
   def post(self):
     args = parser.parse_args()
-    newAssessment = AssessmentModel(args['crn'],args['slo_id'],args['student_id'],args['performance_indicator_id'],args['score'])
-    session.add(newAssessment)
-    session.commit()
-    return newAssessment
+    course = session.query(CourseModel).filter(CourseModel.crn == args['crn']).one_or_none()
+    student = session.query(StudentModel).filter(StudentModel.student_id == args['student_id']).one_or_none()
+    slo = session.query(SLOModel).filter(SLOModel.slo_id == args['slo_id']).one_or_none()
+    performance_indicator = session.query(PerfIndicatorModel).filter(PerfIndicatorModel.slo_id == args['slo_id']).all()
+    perfindicatorList = []
+    argsList = []
+    while args['performance_indicator_id'] != 0:
+      argsList.append(args['performance_indicator_id'])
+    while performance_indicator != 0:
+      perfindicatorList.append(performance_indicator)
+    assessment = AssessmentModel()
+    score = ScoreModel(score = args['score'])
+    score.PerfIndicatorModel = PerfIndicatorModel()
+    if course:
+      if student:
+        if slo:
+          if len(argsList) == len(perfindicatorList):
+            scoreList = []
+            while args['score'] != 0:
+              scoreList.append(args['score'])
+            for i in scoreList[i]:
+              total_score += i
+            newAssessment = AssessmentModel(args['crn'],args['slo_id'],args['student_id'],args['performance_indicator_id'],total_score)
+            session.add(newAssessment)
+            for i in scoreList[i]:
+              score = i
+              assessment.scores.append(score)
+            session.commit()
+            return newAssessment
+          else:
+            abort(404, message='The number of performance indicators does not match what is in the system.')
+        else:
+          abort(404, message='SLO does not exist.')
+      else:
+        abort(404, message='Student does not exist.')
+    else:
+      abort(404, message='Course does not exist.')

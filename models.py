@@ -76,6 +76,7 @@ class FacultyModel(Base):
     _password = Column('password',String(255))
     user_type = Column(String(1))
     courses = relationship("CourseModel", back_populates="faculty")
+    
     @hybrid_property
     def password(self):
       return self._password
@@ -85,7 +86,6 @@ class FacultyModel(Base):
       self._password = generate_password_hash(password)
 
     def check_password(self, password):
-      print(password,file=sys.stderr)
       if check_password_hash(self._password, password):
         return True
 

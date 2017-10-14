@@ -17,6 +17,11 @@ student_fields = {
 	'last_name': fields.String
 }
 
+slo_fields = {
+  'slo_id': fields.String,
+  'slo_description':fields.String
+}
+
 class_fields = {
   'crn': fields.String,
   'course_name': fields.String,
@@ -24,7 +29,8 @@ class_fields = {
   'semester': fields.String,
   'course_year': fields.String(attribute=lambda x: x.course_year.year), # extract only the Year as a string
   'comments': fields.String,
-  'faculty': fields.Nested(faculty_fields)
+  'faculty': fields.Nested(faculty_fields),
+  'slos': fields.Nested(slo_fields)
 }
 
 
@@ -35,7 +41,8 @@ class_detailed_fields = {
   'semester': fields.String,
   'course_year': fields.String(attribute=lambda x: x.course_year.year), # extract only the Year as a string
   'faculty': fields.Nested(faculty_fields),
-  'students': fields.List(fields.Nested(student_fields))
+  'students': fields.List(fields.Nested(student_fields)),
+  'slos': fields.Nested(slo_fields)
 }
 
 # Default class parser.

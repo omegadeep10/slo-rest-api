@@ -1,27 +1,86 @@
 from flask_jwt import jwt_required, current_identity
-from flask_restful import Resource, reqparse
+from flask_restful import Resource, reqparse, marshal_with, fields, abort
 from controllers.auth import checkadmin
 from db import session
-from models import AssessmentModel
+from models import AssessmentModel, CourseModel, PerfIndicatorModel, StudentModel, SLOModel, ScoreModel
+from marshal_base_fields import student_fields, class_fields, slo_fields, score_fields
+import sys
+from functools import reduce
+
+assessment_fields = {
+  'assessment_id': fields.Integer,
+  'total_score': fields.Integer,
+  'student': fields.Nested(student_fields),
+  'course': fields.Nested(class_fields),
+  'slo': fields.Nested(slo_fields),
+  'scores': fields.List(fields.Nested(score_fields))
+}
+
+def scoresList(score):
+  if 'performance_indicator_id' not in score or 'score' not in score:
+    raise ValueError("All scores must contain a performance_indicator_id and a score")
+  
+  if score['score'] < 1 or score['score'] > 4:
+    raise ValueError("Score must be between 1 and 4")
+
+  return score
 
 parser = reqparse.RequestParser()
-parser.add_argument('student_id', type=str, required = True, help='Email field is required.')
-parser.add_argument('slo_id', type=str, required = True, help='Student First Name field is required.')
-parser.add_argument('last_name', type=str, required = True, help='L is required.')
-parser.add_argument('crn', type=str, required = True, help='CRN field is required.')
+parser.add_argument('slo_id', type=str, required = True, help='SLO ID field is required.')
+parser.add_argument('student_id', type=str, required = True, help='Total Score is required.')
+parser.add_argument('scores', type=scoresList, required = True, help='Valid scores are required.', action='append')
 
 class Assessment(Resource):
-  @jwt_required()
+  method_decorators = [jwt_required()]
+
+  @marshal_with(assessment_fields)
   def get(self,assessment_id):
-    return session.query(AssessmentModel).filter(AssessmentModel.assessment_id == assessment_id)
+    return session.query(AssessmentModel).filter(AssessmentModel.assessment_id == assessment_id).first()
   
   def put(self):
-    return {'data3':'assessment updated'}
+    return { 'data3': 'assessment updated' }
   
   def delete(self):
-    return {'data4':'deleted successfully'}
-  
+    return { 'data4': 'deleted successfully' }
+
+
 class AssessmentList(Resource):
-  @jwt_required()
-  def get(self):
-    return session.query(AssessmentModel).filter(AssessmentModel)
+  method_decorators = [jwt_required()]
+
+  @marshal_with(assessment_fields)
+  def get(self, crn):
+    return session.query(AssessmentModel).filter(AssessmentModel.crn == crn).all()
+  
+
+  @marshal_with(assessment_fields)
+  def post(self, crn):
+    args = parser.parse_args()
+    
+    course = session.query(CourseModel).filter(CourseModel.crn == crn).one_or_none()
+    slo = session.query(SLOModel).filter(SLOModel.slo_id == args['slo_id']).one_or_none()
+    student = session.query(StudentModel).filter(StudentModel.student_id == args['student_id']).one_or_none()
+
+    if not course: abort(404, message="Course doesn't exist.")
+    if not slo: abort(404, message="SLO doesn't exist.")
+    if not student: abort(404, message="Student doesn't exist")
+
+    total_score = reduce((lambda total, scoreObj: total + scoreObj['score']), [0] + args['scores']) # a fancy for loop with an accumulator
+    filed_assessment = AssessmentModel(crn, args['slo_id'], args['student_id'], total_score) # init our new assessment object
+    session.add(filed_assessment) # add to the db (populates it with an assessment_id as well)
+
+    scores_as_objs = []
+    for score in args['scores']:
+      perf_indicator = session.query(PerfIndicatorModel).filter(
+        PerfIndicatorModel.performance_indicator_id == score['performance_indicator_id'],
+        PerfIndicatorModel.slo_id == args['slo_id']
+      ).one_or_none()
+      
+      if perf_indicator:
+        scores_as_objs.append(ScoreModel(score['performance_indicator_id'], filed_assessment.assessment_id, score['score']))
+      else:
+        abort(500, message="Performance indicator with the id " + score['performance_indicator_id'] + " doesn't exist.")
+    
+    filed_assessment.scores = scores_as_objs
+
+    session.commit()
+    return filed_assessment

@@ -30,15 +30,26 @@ from controllers.slo import SLO
 # NOTE: To obtain auth token, use the /auth endpoint, passing in a JSON object with email and password fields.
 #       This endpoint is not shown here since it's automatically setup by flask_jwt.
 
-api.add_resource(Register, '/register')      #<base_url>/register
-api.add_resource(User,'/users')             #<base_url>/users
-api.add_resource(AssessmentList,'/assessments')  #<base_url>/assessments
-api.add_resource(Assessment,'/assessment/<int:assessment_id>') #<base_url>/assessments/<assessment_id>
-api.add_resource(CourseList,'/courses')         #<base_url>/classes
-api.add_resource(Course,'/course/<string:crn>')  #<base_url>/classes/<CRN>
-api.add_resource(Student,'/student')             #<base_url>/student
-api.add_resource(SLO, '/slo/<int:slo_id>')      #<base)url
+# /register => POST
+api.add_resource(Register, '/register')
+# /users => GET
+api.add_resource(User,'/users')
+
+# /assessments/<crn> => GET, POST
+api.add_resource(AssessmentList,'/assessments/<string:crn>')
+# /assessment/<assessment_id> => GET, PUT, DELETE
+api.add_resource(Assessment,'/assessment/<int:assessment_id>')
+
+# /courses => GET, POST
+api.add_resource(CourseList,'/courses')
+# /course/<crn> => GET, PUT, DELETE
+api.add_resource(Course,'/course/<string:crn>')
+
+# /student/<student_id> => GET, POST
+api.add_resource(Student,'/student/<string:student_id>')
+
+# /slo/<slo_id> => GET
+api.add_resource(SLO, '/slo/<int:slo_id>')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3000, debug=True) # runs on an internal ip at port 3000 that codeanywhere's linux box automatically maps to external IP
-                                                   # To get the external IP, right click on 'python-backend' and click info to view relevant details
+    app.run(host='0.0.0.0', port=3000, debug=True)

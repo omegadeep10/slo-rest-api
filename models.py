@@ -76,6 +76,7 @@ class FacultyModel(Base):
     _password = Column('password',String(255))
     user_type = Column(String(1))
     courses = relationship("CourseModel", back_populates="faculty")
+    
     @hybrid_property
     def password(self):
       return self._password
@@ -85,7 +86,6 @@ class FacultyModel(Base):
       self._password = generate_password_hash(password)
 
     def check_password(self, password):
-      print(password,file=sys.stderr)
       if check_password_hash(self._password, password):
         return True
 
@@ -106,19 +106,22 @@ class FacultyModel(Base):
 
 
 class AssessmentModel(Base):
-    __tablename__ = 'assessment'
+    __tablename__ = 'Assessment'
 
     assessment_id = Column(Integer, primary_key=True)
-    crn = Column(String(5))
-    slo_id = Column(String(3))
-    student_id = Column(String(9))
+    crn = Column(String(5), ForeignKey('Course.crn'))
+    slo_id = Column(String(3), ForeignKey('SLO.slo_id'))
+    student_id = Column(String(9), ForeignKey('Student.student_id'))
     total_score = Column(Integer)
+    course = relationship("CourseModel")
+    student = relationship("StudentModel")
+    slo = relationship("SLOModel")
+    scores = relationship("ScoreModel")
     
     def __str__(self):
-        return "Assessment object: (assessment_id='%s')" % self.assessment_id
+        return "Assessment object: (course='%s')" % self.course.crn
       
-    def __init__(self, assessment_id, crn, slo_id, student_id, total_score):
-      self.assessment_id = assessment_id
+    def __init__(self, crn, slo_id, student_id, total_score):
       self.crn = crn
       self.slo_id = slo_id
       self.student_id = student_id
@@ -154,6 +157,7 @@ class PerfIndicatorModel(Base):
     satisfactory_description = Column(String(255))
     exemplary_description = Column(String(255))
     slos = relationship("SLOModel", back_populates="performance_indicators")
+    scores = relationship("ScoreModel",back_populates="performance_indicators")
 
     def __str__(self):
       return "PerfIndicator object: (performance_indicator_id='%s')" % self.performance_indicator_id
@@ -172,9 +176,10 @@ class PerfIndicatorModel(Base):
 class ScoreModel(Base):
     __tablename__ = 'Score'
     
-    performance_indicator_id = Column(String(255), primary_key=True)
-    assessment_id = Column(Integer, primary_key=True)
+    performance_indicator_id = Column(String(5), ForeignKey('PerformanceIndicator.performance_indicator_id'), primary_key=True)
+    assessment_id = Column(Integer, ForeignKey('Assessment.assessment_id'), primary_key=True)
     score = Column(Integer)
+    performance_indicators = relationship("PerfIndicatorModel",back_populates="scores")
 
     def __str__(self):
       return "Score object: (performance_indicator_id='%s')" % self.performance_indicator_id

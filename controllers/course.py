@@ -4,45 +4,15 @@ from controllers.auth import checkadmin
 from db import session
 from models import CourseModel
 from datetime import datetime
+from marshal_base_fields import class_fields, faculty_fields, slo_fields, student_fields
 
-faculty_fields = {
-	'faculty_id': fields.String,
-	'first_name': fields.String,
-	'last_name': fields.String
-}
-
-student_fields = {
-	'student_id': fields.String,
-	'first_name': fields.String,
-	'last_name': fields.String
-}
-
-slo_fields = {
-  'slo_id': fields.String,
-  'slo_description':fields.String
-}
-
-class_fields = {
-  'crn': fields.String,
-  'course_name': fields.String,
-  'course_type': fields.String,
-  'semester': fields.String,
-  'course_year': fields.String(attribute=lambda x: x.course_year.year), # extract only the Year as a string
-  'comments': fields.String,
+class_extra_fields = {
   'faculty': fields.Nested(faculty_fields),
   'slos': fields.Nested(slo_fields)
 }
 
-
-class_detailed_fields = {
-  'crn': fields.String,
-  'course_name': fields.String,
-  'course_type': fields.String,
-  'semester': fields.String,
-  'course_year': fields.String(attribute=lambda x: x.course_year.year), # extract only the Year as a string
-  'faculty': fields.Nested(faculty_fields),
+class_student_fields = {
   'students': fields.List(fields.Nested(student_fields)),
-  'slos': fields.Nested(slo_fields)
 }
 
 # Default class parser.
@@ -56,14 +26,14 @@ classParser.add_argument('course_year', type=datetime.fromtimestamp, required=Tr
 classParser.add_argument('comments',type=str)
 
 class Course(Resource):
-  @jwt_required()
-  @marshal_with(class_detailed_fields)
+  method_decorators = [jwt_required()]
+  
+  @marshal_with({**class_fields, **class_extra_fields, **class_student_fields})
   def get(self, crn):
     return session.query(CourseModel).filter(CourseModel.crn == crn).first()
   
   
-  @jwt_required()
-  @marshal_with(class_fields)
+  @marshal_with({**class_fields, **class_extra_fields, **class_student_fields})
   def put(self, crn):
     classParserCopy = classParser.copy() # Initialize a copy of standard classParser and remove crn argument
     classParserCopy.remove_argument('crn')
@@ -76,6 +46,9 @@ class Course(Resource):
       course.course_type = args['course_type']
       course.course_year = args['course_year']
       course.semester = args['semester']
+      
+      if (args['comments']):
+        course.comments = args['comments']
 
       session.commit()
       return course
@@ -84,7 +57,7 @@ class Course(Resource):
       return abort(404, message="Course with the crn {} doesn't exist".format(crn))
 
   
-  @jwt_required()
+
   def delete(self, crn):
     course = session.query(CourseModel).filter(CourseModel.crn == crn).first()
     if (course):
@@ -98,14 +71,15 @@ class Course(Resource):
   
 
 class CourseList(Resource):
-  @jwt_required()
-  @marshal_with(class_fields)
+  method_decorators = [jwt_required()]
+  
+  @marshal_with({**class_fields, **class_extra_fields})
   def get(self):
     return session.query(CourseModel).filter(CourseModel.faculty_id == current_identity.faculty_id).all()
   
-  @jwt_required()
-  @marshal_with(class_fields)
-  def post(self): #post method
+  
+  @marshal_with({**class_fields, **class_extra_fields})
+  def post(self):
     args = classParser.parse_args()
     newCourse = CourseModel(args['crn'], args['faculty_id'], args['course_name'], args['course_type'], args['semester'], args['course_year'],args['comments'])
     session.add(newCourse)

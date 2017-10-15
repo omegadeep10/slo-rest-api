@@ -116,7 +116,7 @@ class AssessmentModel(Base):
     course = relationship("CourseModel")
     student = relationship("StudentModel")
     slo = relationship("SLOModel")
-    scores = relationship("ScoreModel",back_populates="assessments")
+    scores = relationship("ScoreModel")
     
     def __str__(self):
         return "Assessment object: (course='%s')" % self.course.crn
@@ -179,7 +179,6 @@ class ScoreModel(Base):
     performance_indicator_id = Column(String(5), ForeignKey('PerformanceIndicator.performance_indicator_id'), primary_key=True)
     assessment_id = Column(Integer, ForeignKey('Assessment.assessment_id'), primary_key=True)
     score = Column(Integer)
-    assessments = relationship("AssessmentModel",back_populates="scores")
     performance_indicators = relationship("PerfIndicatorModel",back_populates="scores")
 
     def __str__(self):

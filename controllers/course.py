@@ -46,6 +46,9 @@ class Course(Resource):
       course.course_type = args['course_type']
       course.course_year = args['course_year']
       course.semester = args['semester']
+      
+      if (args['comments']):
+        course.comments = args['comments']
 
       session.commit()
       return course

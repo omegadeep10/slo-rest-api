@@ -4,8 +4,8 @@ faculty_fields = {
 	'faculty_id': fields.String,
     'email': fields.String,
 	'first_name': fields.String,
-	'last_name': fields.String
-    # Implement user type
+	'last_name': fields.String,
+    'user_type': fields.String
 }
 
 class_fields = {

@@ -2,7 +2,7 @@ from flask_jwt import jwt_required, current_identity
 from flask_restful import Resource, reqparse, marshal_with, fields, abort
 from controllers.auth import checkadmin
 from db import session
-from models import CourseModel
+from models import CourseModel, SLOModel
 from datetime import datetime
 from marshal_base_fields import class_fields, faculty_fields, slo_fields, student_fields
 
@@ -15,6 +15,15 @@ class_student_fields = {
   'students': fields.List(fields.Nested(student_fields)),
 }
 
+def slosList(slo):
+  if 'slo_id' not in slo:
+    raise ValueError("All slos must contain a slo_id.")
+
+  if type(slo['slo_id']) is not str:
+    raise ValueError("SLO must be a string.") 
+
+  return slo
+
 # Default class parser.
 classParser = reqparse.RequestParser()
 classParser.add_argument('crn', type=str, required=True, help='CRN is required.')
@@ -24,6 +33,7 @@ classParser.add_argument('course_type', type=str, required=True, help='Course ty
 classParser.add_argument('semester', type=str, required=True, help='Semester is required.')
 classParser.add_argument('course_year', type=datetime.fromtimestamp, required=True, help='Course year is required.')
 classParser.add_argument('comments',type=str)
+classParser.add_argument('slos', type=slosList, required=True, help="Assigned SLOs are required.", action='append')
 
 class Course(Resource):
   method_decorators = [jwt_required()]
@@ -41,6 +51,14 @@ class Course(Resource):
 
     course = session.query(CourseModel).filter(CourseModel.crn == crn).first()
     if (course):
+      validSLOs = []
+      for sloObject in args['slos']:
+        slo = session.query(SLOModel).filter(SLOModel.slo_id == sloObject['slo_id']).one_or_none()
+        if slo:
+          validSLOs.append(slo)
+        else:
+          abort(404, message="SLO with this slo_id {} does not exist.".format(slo['slo_id']))
+      course.slos = validSLOs
       course.faculty_id = args['faculty_id']
       course.course_name = args['course_name']
       course.course_type = args['course_type']
@@ -80,8 +98,16 @@ class CourseList(Resource):
   
   @marshal_with({**class_fields, **class_extra_fields})
   def post(self):
-    args = classParser.parse_args()
+    args = classParser.parse_args() 
     newCourse = CourseModel(args['crn'], args['faculty_id'], args['course_name'], args['course_type'], args['semester'], args['course_year'],args['comments'])
+    validSLOs= []
+    for sloObject in args['slos']:
+      slo = session.query(SLOModel).filter(SLOModel.slo_id == sloObject['slo_id']).one_or_none()
+      if slo:
+        validSLOs.append(slo)
+      else:
+        abort(404, message="SLO with this slo_id {} does not exist.".format(slo['slo_id']))
     session.add(newCourse)
+    newCourse.slos = validSLOs
     session.commit() #commits to a database
     return newCourse

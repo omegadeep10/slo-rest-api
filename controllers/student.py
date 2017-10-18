@@ -33,17 +33,17 @@ class Student(Resource):
         args = parser.parse_args() #gets the input
         student = session.query(StudentModel).filter(StudentModel.student_id == student_id).first() #queries the db for student using input
         course = session.query(CourseModel).filter(CourseModel.crn == args['crn']).one_or_none() #queries the db for the course
+        if student:
+            #if student_id already exists, overwrite first_name and last_name
+            #student = StudentModel(student_id, args['first_name'], args['last_name'])
+            student.first_name = args['first_name']
+            student.last_name = args['last_name']
+            session.add(student) #pushes changes
         if not student: #if student doesn't exist, it adds the student to the student table
             student = StudentModel(student_id, args['first_name'], args['last_name']) #puts this in db
+            session.add(student) #adds the info
         if course: #if course exists, it adds info to the db
-            if student:
-                #if student_id already exists, overwrite first_name and last_name
-                student = StudentModel(student_id, args['first_name'], args['last_name'])
-                #student.first_name = student.first_name
-                #student.last_name = student.last_name
-            else:
-                session.add(student) #adds the info
-                course.students.append(student) #adds student to the course
+            course.students.append(student) #adds student to the course
             session.commit() #commits it to db
             return student
         else: #if course doesn't exist

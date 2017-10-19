@@ -3,11 +3,12 @@ from flask_restful import Resource, reqparse, marshal_with, fields, abort
 from controllers.auth import checkadmin
 from db import session
 from models import SLOModel
-from marshal_base_fields import slo_fields, performance_indicator_fields
+from marshal_base_fields import slo_fields, performance_indicator_fields, class_fields
 
 
 slo_detailed_fields = {
-    'performance_indicators': fields.List(fields.Nested(performance_indicator_fields))
+    'performance_indicators': fields.List(fields.Nested(performance_indicator_fields)),
+    'courses': fields.List(fields.Nested({'crn': fields.String(attribute='course.crn')}))
 }
 
 class SLO(Resource):

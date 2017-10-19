@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey, Table
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.orm import relationship, backref
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.ext.hybrid import hybrid_property
 import sys
@@ -10,11 +11,6 @@ Base = declarative_base()
 registration = Table('Registration', Base.metadata,
     Column('crn', String(5), ForeignKey('Course.crn')),
     Column('student_id', String(9), ForeignKey('Student.student_id'))
-)
-
-assignedslo = Table('AssignedSLO',Base.metadata,
-    Column('crn', String(5), ForeignKey('Course.crn')),
-    Column('slo_id', String(3), ForeignKey('SLO.slo_id'))
 )
 
 # REGULAR TABLES
@@ -28,22 +24,58 @@ class CourseModel(Base):
     course_type = Column(String(25))
     semester = Column(String(6))
     course_year = Column(Date)
-    comments = Column(String(2500))
+    
     faculty = relationship("FacultyModel", back_populates="courses")
     students = relationship("StudentModel", secondary=registration,back_populates="courses")
-    slos = relationship("SLOModel",secondary=assignedslo)
+    assigned_slos = association_proxy("assigned_slos", "slo") # List of AssignedSLO objects
 
     def __str__(self):
       return "Course object: (crn='%s')" % self.crn
     
-    def __init__(self, crn, faculty_id, course_name, course_type, semester, course_year, comments):
+    def __init__(self, crn, faculty_id, course_name, course_type, semester, course_year):
       self.crn = crn
       self.faculty_id = faculty_id
       self.course_name = course_name
       self.course_type = course_type
       self.semester = semester
       self.course_year = course_year
-      self.comments = comments
+
+
+
+class AssignedSLOModel(Base):
+  __tablename__ = "AssignedSLO"
+
+  crn = Column(String(5), ForeignKey('Course.crn'), primary_key=True)
+  slo_id = Column(String(3), ForeignKey('SLO.slo_id'), primary_key=True)
+  comments = Column(String)
+
+  course = relationship(CourseModel, backref=backref("assigned_slos", cascade="all, delete-orphan"))
+  slo = relationship("SLOModel", backref=backref("courses", cascade="all, delete-orphan"))
+
+  def __str__(self):
+    return "test"
+
+  def __init__(self, crn, slo_id, comments):
+    self.slo_id = slo_id
+    self.crn = crn
+    self.comments = comments
+
+
+class SLOModel(Base):
+  __tablename__ = 'SLO'
+
+  slo_id = Column(String(9),primary_key = True)
+  slo_description = Column(String(255))
+  performance_indicators = relationship("PerfIndicatorModel", back_populates="slos")
+  courses = association_proxy("courses", "course")
+
+  def __str__(self):
+    return "SLO object: (slo_id='%s')" % self.slo_id
+
+  def __init__(self,slo_id,slo_description):
+    self.slo_id = slo_id
+    self.slo_description = slo_description
+
 
 
 class StudentModel(Base):
@@ -126,23 +158,6 @@ class AssessmentModel(Base):
       self.slo_id = slo_id
       self.student_id = student_id
       self.total_score = total_score
-
-
-
-class SLOModel(Base):
-  __tablename__ = 'SLO'
-
-  slo_id = Column(String(9),primary_key = True)
-  slo_description = Column(String(255))
-  performance_indicators = relationship("PerfIndicatorModel", back_populates="slos")
-  courses = relationship("CourseModel",secondary=assignedslo, back_populates="slos")
-
-  def __str__(self):
-    return "SLO object: (slo_id='%s')" % self.slo_id
-
-  def __init__(self,slo_id,slo_description):
-    self.slo_id = slo_id
-    self.slo_description = slo_description
 
 
 

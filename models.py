@@ -5,6 +5,7 @@ from sqlalchemy.orm import relationship, backref
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.ext.hybrid import hybrid_property
 import sys
+from db import session
 
 Base = declarative_base()
 
@@ -28,6 +29,17 @@ class CourseModel(Base):
     faculty = relationship("FacultyModel", back_populates="courses")
     students = relationship("StudentModel", secondary=registration,back_populates="courses")
     assigned_slos = association_proxy("assigned_slos", "slo") # List of AssignedSLO objects
+
+    @hybrid_property
+    def completion(self):
+      students = len(self.students)
+      slos =  len(self.slos)
+      assessments = session.query(AssessmentModel).filter(AssessmentModel.crn == self.crn)  
+      total =  students * slos
+      if total == assessments:
+        return True
+      else:
+        return False
 
     def __str__(self):
       return "Course object: (crn='%s')" % self.crn

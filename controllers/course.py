@@ -9,7 +9,8 @@ import sys
 
 class_extra_fields = {
   'faculty': fields.Nested(faculty_fields),
-  'assigned_slos': fields.Nested(assigned_slo_fields)
+  'assigned_slos': fields.Nested(assigned_slo_fields),
+  'completion': fields.Boolean 
 }
 
 class_student_fields = {

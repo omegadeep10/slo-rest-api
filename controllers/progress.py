@@ -5,7 +5,8 @@ from models import CourseModel, AssessmentModel
 from marshal_base_fields import class_fields, faculty_fields
 
 class_extra_fields = {
-  'faculty': fields.Nested(faculty_fields)
+  'faculty': fields.Nested(faculty_fields),
+  'completion': fields.Boolean 
 }
 
 class Progress(Resource):
@@ -14,13 +15,4 @@ class Progress(Resource):
     @marshal_with({**class_fields, **class_extra_fields})
     def get(self):
         courses = session.query(CourseModel).all()
-        for courseObject in courses:
-            assessments =  session.query(AssessmentModel).filter(AssessmentModel.crn == courseObject.crn).count()
-            students = len(courseObject.students)
-            slos =  len(courseObject.slos)
-            total =  students * slos
-            if total == assessments:
-                return {'Complete'}
-            else:
-                return {'Incomplete'}
-            return courses
+        return courses

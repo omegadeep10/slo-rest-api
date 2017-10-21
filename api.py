@@ -50,7 +50,7 @@ api.add_resource(Course,'/course/<string:crn>')
 api.add_resource(Student,'/student/<string:student_id>')
 
 # /slo/<slo_id> => GET
-api.add_resource(SLO, '/slo/<int:slo_id>')
+api.add_resource(SLO, '/slo/<string:slo_id>')
 
 #/progress => GET
 api.add_resource(Progress, '/progress')

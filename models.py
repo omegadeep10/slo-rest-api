@@ -28,7 +28,6 @@ class CourseModel(Base):
     course_type = Column(String(25))
     semester = Column(String(6))
     course_year = Column(Date)
-    comments = Column(String(2500))
     faculty = relationship("FacultyModel", back_populates="courses")
     students = relationship("StudentModel", secondary=registration,back_populates="courses")
     slos = relationship("SLOModel",secondary=assignedslo)
@@ -36,14 +35,13 @@ class CourseModel(Base):
     def __str__(self):
       return "Course object: (crn='%s')" % self.crn
     
-    def __init__(self, crn, faculty_id, course_name, course_type, semester, course_year, comments):
+    def __init__(self, crn, faculty_id, course_name, course_type, semester, course_year):
       self.crn = crn
       self.faculty_id = faculty_id
       self.course_name = course_name
       self.course_type = course_type
       self.semester = semester
       self.course_year = course_year
-      self.comments = comments
 
 
 class StudentModel(Base):

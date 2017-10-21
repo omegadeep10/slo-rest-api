@@ -25,7 +25,10 @@ class CourseModel(Base):
     course_type = Column(String(25))
     semester = Column(String(6))
     course_year = Column(Date)
+<<<<<<< HEAD
+=======
     
+>>>>>>> master
     faculty = relationship("FacultyModel", back_populates="courses")
     students = relationship("StudentModel", secondary=registration,back_populates="courses")
     assigned_slos = association_proxy("assigned_slos", "slo") # List of AssignedSLO objects
@@ -51,6 +54,8 @@ class CourseModel(Base):
       self.course_type = course_type
       self.semester = semester
       self.course_year = course_year
+<<<<<<< HEAD
+=======
 
 
 
@@ -88,6 +93,7 @@ class SLOModel(Base):
     self.slo_id = slo_id
     self.slo_description = slo_description
 
+>>>>>>> master
 
 
 class StudentModel(Base):

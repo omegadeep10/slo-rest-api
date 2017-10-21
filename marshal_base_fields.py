@@ -14,13 +14,18 @@ class_fields = {
     'course_type': fields.String,
     'semester': fields.String,
     'course_year': fields.String(attribute=lambda x: x.course_year.year), # extract only the Year as a string
-    'comments': fields.String
 }
 
 student_fields = {
 	'student_id': fields.String,
 	'first_name': fields.String,
 	'last_name': fields.String
+}
+
+assigned_slo_fields = {
+    'slo_id': fields.String,
+    'slo_description': fields.String(attribute='slo.slo_description'),
+    'comments': fields.String
 }
 
 slo_fields = {

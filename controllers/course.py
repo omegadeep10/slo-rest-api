@@ -67,11 +67,6 @@ class Course(Resource):
         abort(404, message="SLO with this slo_id {} does not exist.".format(slo['slo_id']))
 
 
-<<<<<<< HEAD
-    else:
-      return abort(404, message="Course with the crn {} doesn't exist".format(crn))
-
-=======
     # at this point, all data is valid, so commence updating the course object
     course.assigned_slos = validSLOs # Replace assigned_slos with new list of AssignedSLOModels. SQLAlchemy will figure it out
     course.faculty_id = args['faculty_id']
@@ -82,7 +77,6 @@ class Course(Resource):
 
     session.commit()
     return course
->>>>>>> master
   
 
   def delete(self, crn):

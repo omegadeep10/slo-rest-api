@@ -16,4 +16,11 @@ class SLO(Resource):
     @marshal_with({**slo_fields, **slo_detailed_fields})
     def get(self, slo_id):
         return session.query(SLOModel).filter(SLOModel.slo_id == slo_id).first()
+
+
+class SLOList(Resource):
+    @jwt_required()
+    @marshal_with({**slo_fields})
+    def get(self):
+        return session.query(SLOModel).all()
         

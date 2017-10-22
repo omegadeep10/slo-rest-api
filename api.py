@@ -25,7 +25,7 @@ from controllers.user import User
 from controllers.assessment import Assessment, AssessmentList
 from controllers.course import Course, CourseList
 from controllers.student import Student
-from controllers.slo import SLO
+from controllers.slo import SLO, SLOList
 from controllers.progress import Progress
 from controllers.report import Report
 
@@ -52,6 +52,8 @@ api.add_resource(Student,'/student/<string:student_id>')
 
 # /slo/<slo_id> => GET
 api.add_resource(SLO, '/slo/<string:slo_id>')
+# /slos => GET
+api.add_resource(SLOList, '/slos')
 
 #/progress => GET
 api.add_resource(Progress, '/progress')

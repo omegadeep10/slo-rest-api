@@ -27,6 +27,7 @@ from controllers.course import Course, CourseList
 from controllers.student import Student
 from controllers.slo import SLO
 from controllers.progress import Progress
+from controllers.report import Report
 
 # NOTE: To obtain auth token, use the /auth endpoint, passing in a JSON object with email and password fields.
 #       This endpoint is not shown here since it's automatically setup by flask_jwt.
@@ -54,6 +55,9 @@ api.add_resource(SLO, '/slo/<string:slo_id>')
 
 #/progress => GET
 api.add_resource(Progress, '/progress')
+
+#/report => GET
+api.add_resource(Report,'/report/<string:crn>')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, debug=True)

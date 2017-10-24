@@ -41,7 +41,7 @@ class Assessment(Resource):
     return { 'data3': 'assessment updated' }
   
   def delete(self,assessment_id):
-    assessment = session.query(AssessmentModel).filter(AssessmentModel.assessment_id == assessment_id).first()
+        assessment = session.query(AssessmentModel).filter(AssessmentModel.assessment_id == assessment_id).first()
     if (assessment):
       for each_score in assessment.scores:
         session.delete(each_score)

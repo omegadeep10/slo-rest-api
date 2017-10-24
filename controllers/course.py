@@ -77,14 +77,6 @@ class Course(Resource):
 
     session.commit()
     return course
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> ba990daf2487e223a7bdd08b67e78c33bf87874c
-=======
->>>>>>> master
->>>>>>> 9040d9b0382ae395b04a76ea60f68833f34c95a2
-=======
->>>>>>> 9484406a218b2c2b33dd2aa02789ca3adeb385d9
   
 
   def delete(self, crn):

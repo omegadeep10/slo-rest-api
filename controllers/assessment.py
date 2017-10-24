@@ -40,8 +40,16 @@ class Assessment(Resource):
   def put(self):
     return { 'data3': 'assessment updated' }
   
-  def delete(self):
-    return { 'data4': 'deleted successfully' }
+  def delete(self,assessment_id):
+    assessment = session.query(AssessmentModel).filter(AssessmentModel.assessment_id == assessment_id).first()
+    if (assessment):
+      for each_score in assessment.scores:
+        session.delete(each_score)
+      session.delete(assessment)
+      session.commit()
+      return {}, 204 # Delete successful, so return empty 204 successful response
+    else:
+      abort(404, message="Assessment with the assessment ID {} doesn't exist".format(assessment_id)) 
 
 
 class AssessmentList(Resource):

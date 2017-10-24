@@ -1,7 +1,8 @@
 from sqlalchemy import Column, Integer, String, Date, ForeignKey, Table
+from sqlalchemy import select, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship, backref, column_property
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.ext.hybrid import hybrid_property
 import sys
@@ -16,6 +17,30 @@ registration = Table('Registration', Base.metadata,
 
 # REGULAR TABLES
 
+class AssessmentModel(Base):
+    __tablename__ = 'Assessment'
+
+    assessment_id = Column(Integer, primary_key=True)
+    crn = Column(String(5), ForeignKey('Course.crn'))
+    slo_id = Column(String(3), ForeignKey('SLO.slo_id'))
+    student_id = Column(String(9), ForeignKey('Student.student_id'))
+    total_score = Column(Integer)
+    course = relationship("CourseModel")
+    student = relationship("StudentModel")
+    slo = relationship("SLOModel")
+    scores = relationship("ScoreModel")
+    
+    def __str__(self):
+        return "Assessment object: (course='%s')" % self.course.crn
+      
+    def __init__(self, crn, slo_id, student_id, total_score):
+      self.crn = crn
+      self.slo_id = slo_id
+      self.student_id = student_id
+      self.total_score = total_score
+
+
+
 class CourseModel(Base):
     __tablename__ = 'Course'
 
@@ -25,21 +50,18 @@ class CourseModel(Base):
     course_type = Column(String(25))
     semester = Column(String(6))
     course_year = Column(Date)
-<<<<<<< HEAD
-=======
     
->>>>>>> master
     faculty = relationship("FacultyModel", back_populates="courses")
     students = relationship("StudentModel", secondary=registration,back_populates="courses")
+    assessments_count = column_property(select([func.count(AssessmentModel.assessment_id)]).where(AssessmentModel.crn == crn))
     assigned_slos = association_proxy("assigned_slos", "slo") # List of AssignedSLO objects
 
-    @hybrid_property
+    @property
     def completion(self):
-      students = len(self.students)
-      slos =  len(self.slos)
-      assessments = session.query(AssessmentModel).filter(AssessmentModel.crn == self.crn)  
-      total =  students * slos
-      if total == assessments:
+      students_count = len(self.students)
+      slos_count = len(self.assigned_slos)
+      total = students_count * slos_count
+      if (total and total == self.assessments_count):
         return True
       else:
         return False
@@ -54,8 +76,6 @@ class CourseModel(Base):
       self.course_type = course_type
       self.semester = semester
       self.course_year = course_year
-<<<<<<< HEAD
-=======
 
 
 
@@ -93,7 +113,6 @@ class SLOModel(Base):
     self.slo_id = slo_id
     self.slo_description = slo_description
 
->>>>>>> master
 
 
 class StudentModel(Base):
@@ -151,31 +170,6 @@ class FacultyModel(Base):
         self.last_name = last_name
         self.password = password
         self.user_type = user_type
-
-
-
-
-class AssessmentModel(Base):
-    __tablename__ = 'Assessment'
-
-    assessment_id = Column(Integer, primary_key=True)
-    crn = Column(String(5), ForeignKey('Course.crn'))
-    slo_id = Column(String(3), ForeignKey('SLO.slo_id'))
-    student_id = Column(String(9), ForeignKey('Student.student_id'))
-    total_score = Column(Integer)
-    course = relationship("CourseModel")
-    student = relationship("StudentModel")
-    slo = relationship("SLOModel")
-    scores = relationship("ScoreModel")
-    
-    def __str__(self):
-        return "Assessment object: (course='%s')" % self.course.crn
-      
-    def __init__(self, crn, slo_id, student_id, total_score):
-      self.crn = crn
-      self.slo_id = slo_id
-      self.student_id = student_id
-      self.total_score = total_score
 
 
 

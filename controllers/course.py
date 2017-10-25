@@ -66,7 +66,6 @@ class Course(Resource):
       else: # If SLO doesn't exist, abort
         abort(404, message="SLO with this slo_id {} does not exist.".format(slo['slo_id']))
 
-
     # at this point, all data is valid, so commence updating the course object
     course.assigned_slos = validSLOs # Replace assigned_slos with new list of AssignedSLOModels. SQLAlchemy will figure it out
     course.faculty_id = args['faculty_id']
@@ -76,6 +75,7 @@ class Course(Resource):
     course.semester = args['semester']
 
     session.commit()
+    session.close()
     return course
   
 
@@ -84,6 +84,7 @@ class Course(Resource):
     if (course):
       session.delete(course)
       session.commit()
+      session.close()
       return {}, 204 # Delete successful, so return empty 204 successful response
       
     else:
@@ -102,7 +103,11 @@ class CourseList(Resource):
   
   @marshal_with({**class_fields, **class_extra_fields})
   def post(self):
-    args = classParser.parse_args() 
+    args = classParser.parse_args()
+    existingCourse = session.query(CourseModel).filter(CourseModel.crn == args['crn']).one_or_none()
+    if (existingCourse):
+        abort(400, message="Course with the crn {} already exists".format(crn))
+    
     newCourse = CourseModel(args['crn'], args['faculty_id'], args['course_name'], args['course_type'], args['semester'], args['course_year'])
     
     validSLOs= []
@@ -114,8 +119,8 @@ class CourseList(Resource):
       else:
         abort(404, message="SLO with this slo_id {} does not exist.".format(slo['slo_id']))
     
-    session.add(newCourse)
     newCourse.assigned_slos = validSLOs
-    
+    session.add(newCourse)
     session.commit() #commits to a database
-    return newCourse
+    session.close()
+    return session.query(CourseModel).filter(CourseModel.crn == args['crn']).first()

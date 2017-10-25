@@ -4,7 +4,6 @@ from flask_cors import CORS
 from datetime import timedelta
 
 app = Flask(__name__)
-CORS(app)
 app.config['SECRET_KEY'] = 'tacos_21' # used for signing tokens
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://db_team:fudge1960@45.55.81.224/slo?charset=utf8&use_unicode=0'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # we don't use track mods, this gets rid of an error in the console
@@ -12,6 +11,7 @@ app.config['JWT_EXPIRATION_DELTA'] = timedelta(seconds=3600) # default to JWT ex
 app.config['JWT_AUTH_USERNAME_KEY'] = 'email' # we use email, not the default 'username' field that flask_JWT expects
 
 api = Api(app)
+CORS(app)
 
 #initialize flask_JWT
 from flask_jwt import JWT, jwt_required, current_identity

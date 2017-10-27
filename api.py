@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_restful import Api
 from flask_cors import CORS
+from db import session
 from datetime import timedelta
 
 app = Flask(__name__)
@@ -9,11 +10,13 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://db_team:fudge1960@45.55
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False  # we don't use track mods, this gets rid of an error in the console
 app.config['JWT_EXPIRATION_DELTA'] = timedelta(seconds=3600) # default to JWT expiration of one hour
 app.config['JWT_AUTH_USERNAME_KEY'] = 'email' # we use email, not the default 'username' field that flask_JWT expects
-app.config['SQLALCHEMY_POOL_SIZE'] = 100 # Forces SQLAlchemy to recycle sessions. Prevents 'MySQL server has gone away' errors
-app.config['SQLALCHEMY_POOL_RECYCLE'] = 280
 
 api = Api(app)
 CORS(app)
+
+@app.teardown_appcontext
+def close_session(exception=None):
+    session.remove()
 
 #initialize flask_JWT
 from flask_jwt import JWT, jwt_required, current_identity

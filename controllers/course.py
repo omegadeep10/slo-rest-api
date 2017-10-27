@@ -106,7 +106,7 @@ class CourseList(Resource):
     args = classParser.parse_args()
     existingCourse = session.query(CourseModel).filter(CourseModel.crn == args['crn']).one_or_none()
     if (existingCourse):
-        abort(400, message="Course with the crn {} already exists".format(crn))
+        abort(400, message="Course with the crn {} already exists".format(args['crn']))
     
     newCourse = CourseModel(args['crn'], args['faculty_id'], args['course_name'], args['course_type'], args['semester'], args['course_year'])
     

@@ -118,7 +118,7 @@ class Report(Resource):
     def get(self,crn):
         course = session.query(CourseModel).filter(CourseModel.crn == crn).one_or_none()
 
-        workbook = xlsxwriter.Workbook('slos.xlsx') #creates the workbook and names it
+        workbook = xlsxwriter.Workbook('static/slos.xlsx') #creates the workbook and names it
         generateRawData(workbook, course)
 
         workbook.close() #closes the workbook

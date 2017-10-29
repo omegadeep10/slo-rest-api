@@ -30,17 +30,35 @@ parser.add_argument('slo_id', type=str, required = True, help='SLO ID field is r
 parser.add_argument('student_id', type=str, required = True, help='Total Score is required.')
 parser.add_argument('scores', type=scoresList, required = True, help='Valid scores are required.', action='append')
 
+putParser = reqparse.RequestParser()
+putParser.add_argument('scores', type=scoresList, required = True, help='Valid scores are required', action='append')
+
 class Assessment(Resource):
   method_decorators = [jwt_required()]
 
   @marshal_with(assessment_fields)
-  def get(self,assessment_id):
+  def get(self, assessment_id):
     return session.query(AssessmentModel).filter(AssessmentModel.assessment_id == assessment_id).first()
   
-  def put(self):
-    return { 'data3': 'assessment updated' }
+  @marshal_with(assessment_fields)
+  def put(self, assessment_id):
+    args = putParser.parse_args()
+
+    assessment = session.query(AssessmentModel).filter(AssessmentModel.assessment_id == assessment_id).first()
+    if not assessment: abort(404, message="Assessment doesn't exist") 
+
+    total_score = reduce((lambda total, scoreObj: total + scoreObj['score']), [0] + args['scores']) # a fancy for loop with an accumulator
+    assessment.total_score = total_score
+
+    for score in args['scores']:
+      for db_score in assessment.scores:
+        if (db_score.performance_indicator_id == score['performance_indicator_id']):
+          db_score.score = score['score']
+
+    session.commit()
+    return assessment
   
-  def delete(self,assessment_id):
+  def delete(self, assessment_id):
     assessment = session.query(AssessmentModel).filter(AssessmentModel.assessment_id == assessment_id).first()
     if (assessment):
       for each_score in assessment.scores:

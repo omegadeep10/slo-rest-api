@@ -34,7 +34,7 @@ classParser.add_argument('course_name', type=str, required=True,help='Course nam
 classParser.add_argument('course_type', type=str, required=True, help='Course type is required.')
 classParser.add_argument('semester', type=str, required=True, help='Semester is required.')
 classParser.add_argument('course_year', type=datetime.fromtimestamp, required=True, help='Course year is required.')
-classParser.add_argument('slos', type=slosList, required=True, help="Assigned SLOs are required.", action='append')
+classParser.add_argument('assigned_slos', type=slosList, required=True, help="Assigned SLOs are required.", action='append')
 
 class Course(Resource):
   method_decorators = [jwt_required()]
@@ -58,7 +58,7 @@ class Course(Resource):
 
     validSLOs = [] # If SLO exists, create an AssignedSLOModel object and add to this list
     
-    for sloObject in args['slos']: # For each SLO passed in
+    for sloObject in args['assigned_slos']: # For each SLO passed in
       slo = session.query(SLOModel).filter(SLOModel.slo_id == sloObject['slo_id']).one_or_none() # Get the SLO object
       
       if slo:
@@ -111,7 +111,7 @@ class CourseList(Resource):
     newCourse = CourseModel(args['crn'], args['faculty_id'], args['course_name'], args['course_type'], args['semester'], args['course_year'])
     
     validSLOs= []
-    for sloObject in args['slos']:
+    for sloObject in args['assigned_slos']:
       slo = session.query(SLOModel).filter(SLOModel.slo_id == sloObject['slo_id']).one_or_none()
       
       if slo:
@@ -119,8 +119,8 @@ class CourseList(Resource):
       else:
         abort(404, message="SLO with this slo_id {} does not exist.".format(slo['slo_id']))
     
-    newCourse.assigned_slos = validSLOs
     session.add(newCourse)
+    newCourse.assigned_slos = validSLOs
     session.commit() #commits to a database
     session.close()
     return session.query(CourseModel).filter(CourseModel.crn == args['crn']).first()

@@ -3,6 +3,7 @@ from flask_restful import Resource, reqparse, marshal_with, fields, abort
 from controllers.auth import checkadmin
 from db import session
 import xlsxwriter
+import os
 from models import AssessmentModel, PerfIndicatorModel, ScoreModel, CourseModel, SLOModel
 
 def getScoreCount(ListOfAssessments, desiredScore, performanceIndicatorId):
@@ -118,7 +119,16 @@ class Report(Resource):
     def get(self,crn):
         course = session.query(CourseModel).filter(CourseModel.crn == crn).one_or_none()
 
+        # Remove the slos.xlsx file if it exists
+        try:
+            os.remove('static/slos.xlsx')
+        except OSError:
+            pass
+
+        # Generate workbook
         workbook = xlsxwriter.Workbook('static/slos.xlsx') #creates the workbook and names it
         generateRawData(workbook, course)
 
         workbook.close() #closes the workbook
+
+        return { 'file_url': 'https://slos.deeppatel.me/api/static/slos.xlsx' }, 200

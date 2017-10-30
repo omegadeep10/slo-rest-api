@@ -23,7 +23,7 @@ def safeDivision(x, y):
 
 # Responsible for generating first sheet and populating with raw user data
 def generateRawData(excelWorkbook, course):
-    worksheet = excelWorkbook.add_worksheet('RawData') #adds a worksheet to the workbook
+    worksheet = excelWorkbook.add_worksheet(course.crn) #adds a worksheet to the workbook
     row, column = 0, 0
     
     for assignedSlo in course.assigned_slos:
@@ -116,8 +116,8 @@ def generateRawData(excelWorkbook, course):
 
 class Report(Resource):
 
-    def get(self,crn):
-        course = session.query(CourseModel).filter(CourseModel.crn == crn).one_or_none()
+    def get(self):
+        courses = session.query(CourseModel).all()
 
         # Remove the slos.xlsx file if it exists
         try:
@@ -127,8 +127,9 @@ class Report(Resource):
 
         # Generate workbook
         workbook = xlsxwriter.Workbook('static/slos.xlsx') #creates the workbook and names it
-        generateRawData(workbook, course)
+        for course in courses:
+            generateRawData(workbook, course)
 
         workbook.close() #closes the workbook
 
-        return { 'file_url': 'https://slos.deeppatel.me/api/static/slos.xlsx' }, 200
+        return { 'file_url': '/static/slos.xlsx' }, 200

@@ -75,7 +75,6 @@ class Course(Resource):
     course.semester = args['semester']
 
     session.commit()
-    session.close()
     return course
   
 

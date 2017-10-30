@@ -64,7 +64,7 @@ api.add_resource(SLOList, '/slos')
 api.add_resource(Progress, '/progress')
 
 #/report => GET
-api.add_resource(Report,'/report/<string:crn>')
+api.add_resource(Report,'/report')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, debug=True)

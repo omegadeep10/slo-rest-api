@@ -43,7 +43,8 @@ class Student(Resource):
             student = StudentModel(student_id, args['first_name'], args['last_name']) #puts this in db
             session.add(student) #adds the info
         if course: #if course exists, it adds info to the db
-            course.students.append(student) #adds student to the course
+            if student not in course.students: #If student is not ALREADY registered to course, add. Else just return
+                course.students.append(student) #adds student to the course
             session.commit() #commits it to db
             return student
         else: #if course doesn't exist

@@ -48,6 +48,7 @@ class Course(Resource):
   def put(self, crn):
     classParserCopy = classParser.copy() # Initialize a copy of standard classParser and remove crn argument
     classParserCopy.remove_argument('crn')
+    classParserCopy.remove_argument('course_year') # This method is really only used to update comments. Course year implementation is buggy
     args = classParserCopy.parse_args()
 
     # Get the course object from db
@@ -71,7 +72,7 @@ class Course(Resource):
     course.faculty_id = args['faculty_id']
     course.course_name = args['course_name']
     course.course_type = args['course_type']
-    course.course_year = args['course_year']
+    # course.course_year = args['course_year'] # Don't update course year. Weird bugs, plus not a use-case anyways
     course.semester = args['semester']
 
     session.commit()

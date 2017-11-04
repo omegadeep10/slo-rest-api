@@ -116,6 +116,8 @@ def generateRawData(excelWorkbook, course):
 
 class Report(Resource):
 
+    @jwt_required()
+    @checkadmin
     def get(self):
         courses = session.query(CourseModel).all()
 

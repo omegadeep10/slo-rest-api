@@ -2,7 +2,7 @@ from flask_jwt import jwt_required, current_identity
 from flask_restful import Resource, fields, marshal_with, reqparse
 from controllers.auth import checkadmin
 from db import session
-from models import CourseModel, AssessmentModel
+from models import CourseModel, AssessmentModel, SLOModel
 from marshal_base_fields import class_fields, faculty_fields
 
 pi_data_fields = {
@@ -31,17 +31,17 @@ class_data_fields = {
     'completion': fields.Boolean
 }
 
-# Input: List of AssessmentModel objects, AssignedSLO object
+# Input: List of AssessmentModel objects, SLO object
 # Output: List of PI data in the format specified by pi_data_fields
-def generateSummaryData(listOfAssessments, assignedSLO):
+def generateSummaryData(listOfAssessments, SLOModel):
     summaryData = [] #container
-    relevant_assessments = [x for x in listOfAssessments if x.slo_id == assignedSLO.slo_id] # Filters assessments to just be the ones for this specific SLO
+    relevant_assessments = [x for x in listOfAssessments if x.slo_id == SLOModel.slo_id] # Filters assessments to just be the ones for this specific SLO
     relevant_scores = [] #container that will hold all scores
 
     # For each relevant assessment, add it's scores to the relevant_scores container
     for a in relevant_assessments: relevant_scores = relevant_scores + a.scores
 
-    for pi in assignedSLO.slo.performance_indicators:
+    for pi in SLOModel.performance_indicators:
         summaryData.append({
             'performance_indicator_id': pi.performance_indicator_id,
             'performance_indicator_description': pi.performance_indicator_description,
@@ -53,6 +53,23 @@ def generateSummaryData(listOfAssessments, assignedSLO):
         })
     
     return summaryData
+
+class SLODataList(Resource):
+    @jwt_required()
+    @checkadmin
+    @marshal_with(slo_data_fields)
+    def get(self, slo_id):
+        slo_data_formatted = []
+        slo = session.query(SLOModel).filter(SLOModel.slo_id == slo_id).first()
+        slo_assessments = session.query(AssessmentModel).filter(AssessmentModel.slo_id == slo.slo_id).all()
+
+        slo_data_formatted.append({
+            'slo_id': slo.slo_id,
+            'slo_description': slo.slo_description,
+            'performance_indicators': generateSummaryData(slo_assessments, slo)
+        })
+        
+        return slo_data_formatted
 
 class CourseDataList(Resource):
     
@@ -81,7 +98,7 @@ class CourseDataList(Resource):
                 course_data['assigned_slos'].append({
                     'slo_id': slo.slo_id,
                     'slo_description': slo.slo.slo_description,
-                    'performance_indicators': generateSummaryData(course_assessments, slo)
+                    'performance_indicators': generateSummaryData(course_assessments, slo.slo)
                 })
             
             course_data_formatted.append(course_data)

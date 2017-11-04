@@ -67,8 +67,8 @@ api.add_resource(Progress, '/progress')
 #/report => GET
 api.add_resource(Report,'/report')
 
-#/data/courses => GET
-api.add_resource(CourseDataList, '/data/courses')
+#/data/course/<crn> => GET
+api.add_resource(CourseDataList, '/data/course/<string:crn>')
 #/data/slo/<slo_id> => GET
 api.add_resource(SLODataList, '/data/slo/<string:slo_id>')
 

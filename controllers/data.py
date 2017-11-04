@@ -76,31 +76,29 @@ class CourseDataList(Resource):
     @jwt_required()
     @checkadmin
     @marshal_with(class_data_fields)
-    def get(self):
+    def get(self, crn):
         course_data_formatted = []
-        courses = session.query(CourseModel).all()
+        course = session.query(CourseModel).filter(CourseModel.crn == crn).first()
+        course_assessments = session.query(AssessmentModel).filter(AssessmentModel.crn == course.crn).all()
+
+        course_data = {
+            'crn': course.crn,
+            'course_name': course.course_name,
+            'course_type': course.course_type,
+            'semester': course.semester,
+            'course_year': course.course_year,
+            'total_students': len(course.students),
+            'assigned_slos': [],
+            'completion': course.completion
+        }
+
+        for slo in course.assigned_slos:
+            course_data['assigned_slos'].append({
+                'slo_id': slo.slo_id,
+                'slo_description': slo.slo.slo_description,
+                'performance_indicators': generateSummaryData(course_assessments, slo.slo)
+            })
         
-        for course in courses:
-            course_assessments = session.query(AssessmentModel).filter(AssessmentModel.crn == course.crn).all()
-
-            course_data = {
-                'crn': course.crn,
-                'course_name': course.course_name,
-                'course_type': course.course_type,
-                'semester': course.semester,
-                'course_year': course.course_year,
-                'total_students': len(course.students),
-                'assigned_slos': [],
-                'completion': course.completion
-            }
-
-            for slo in course.assigned_slos:
-                course_data['assigned_slos'].append({
-                    'slo_id': slo.slo_id,
-                    'slo_description': slo.slo.slo_description,
-                    'performance_indicators': generateSummaryData(course_assessments, slo.slo)
-                })
-            
-            course_data_formatted.append(course_data)
+        course_data_formatted.append(course_data)
         
         return course_data_formatted

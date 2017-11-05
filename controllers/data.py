@@ -20,6 +20,10 @@ slo_data_fields = {
     'performance_indicators': fields.List(fields.Nested(pi_data_fields))
 }
 
+slo_data_extra_fields = {
+    'total_assessments': fields.Integer
+}
+
 class_data_fields = {
     'crn': fields.String,
     'course_name': fields.String,
@@ -57,7 +61,7 @@ def generateSummaryData(listOfAssessments, SLOModel):
 class SLODataList(Resource):
     @jwt_required()
     @checkadmin
-    @marshal_with(slo_data_fields)
+    @marshal_with({**slo_data_fields, **slo_data_extra_fields})
     def get(self, slo_id):
         slo = session.query(SLOModel).filter(SLOModel.slo_id == slo_id).first()
         slo_assessments = session.query(AssessmentModel).filter(AssessmentModel.slo_id == slo.slo_id).all()
@@ -65,6 +69,7 @@ class SLODataList(Resource):
         slo_data = {
             'slo_id': slo.slo_id,
             'slo_description': slo.slo_description,
+            'total_assessments': len(slo_assessments),
             'performance_indicators': generateSummaryData(slo_assessments, slo)
         }
         

@@ -59,17 +59,16 @@ class SLODataList(Resource):
     @checkadmin
     @marshal_with(slo_data_fields)
     def get(self, slo_id):
-        slo_data_formatted = []
         slo = session.query(SLOModel).filter(SLOModel.slo_id == slo_id).first()
         slo_assessments = session.query(AssessmentModel).filter(AssessmentModel.slo_id == slo.slo_id).all()
 
-        slo_data_formatted.append({
+        slo_data = {
             'slo_id': slo.slo_id,
             'slo_description': slo.slo_description,
             'performance_indicators': generateSummaryData(slo_assessments, slo)
-        })
+        }
         
-        return slo_data_formatted
+        return slo_data
 
 class CourseDataList(Resource):
     
@@ -77,7 +76,6 @@ class CourseDataList(Resource):
     @checkadmin
     @marshal_with(class_data_fields)
     def get(self, crn):
-        course_data_formatted = []
         course = session.query(CourseModel).filter(CourseModel.crn == crn).first()
         course_assessments = session.query(AssessmentModel).filter(AssessmentModel.crn == course.crn).all()
 
@@ -99,6 +97,4 @@ class CourseDataList(Resource):
                 'performance_indicators': generateSummaryData(course_assessments, slo.slo)
             })
         
-        course_data_formatted.append(course_data)
-        
-        return course_data_formatted
+        return course_data

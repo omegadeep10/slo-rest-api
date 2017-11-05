@@ -7,7 +7,9 @@ from marshal_base_fields import class_fields, faculty_fields
 
 class_extra_fields = {
   'faculty': fields.Nested(faculty_fields),
-  'completion': fields.Boolean 
+  'completion': fields.Boolean,
+  'total_students': fields.Integer(attribute=lambda x: len(x.students)),
+  'total_completed_students': fields.Integer(attribute=lambda x: x.assessments_count / len(x.assigned_slos))
 }
 
 class Progress(Resource):

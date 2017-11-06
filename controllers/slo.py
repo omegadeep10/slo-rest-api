@@ -46,15 +46,15 @@ class SLO(Resource):
 
 
     def delete(self,slo_id):
-        assigned_slo = session.query(AssignedSLOModel).filter(AssignedSLOModel.slo_id == slo_id).first()
-        assessment = session.query(AssessmentModel).filter(AssessmentModel.slo_id == slo_id).first()
-        if assigned_slo:
-            if assessment:
-                 abort(404, message="SLO is assigned to a course and has assessments using this SLO.")
-            else:
-                session.delete(slo)
-                session.commit()
-                return {}, 204 # Delete successful, so return empty 204 successful response
+        assigned_slos = session.query(AssignedSLOModel).filter(AssignedSLOModel.slo_id == slo_id).all()
+        assessments = session.query(AssessmentModel).filter(AssessmentModel.slo_id == slo_id).all()
+        
+        if len(assigned_slos) > 0: abort(409, message="SLO cannot be deleted. Courses exist that are assigned to this SLO.") 
+        if len(assessments) > 0: abort(409, message="SLO cannot be deleted. Assessments exist that reference it.")
+        
+        session.delete(slo)
+        session.commit()
+        return {}, 204 # Delete successful, so return empty 204 successful response
 
 
 class SLOList(Resource):

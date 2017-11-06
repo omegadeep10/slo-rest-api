@@ -26,6 +26,7 @@ slo_data_extra_fields = {
 
 class_data_fields = {
     'crn': fields.String,
+    'course_number': fields.String,
     'course_name': fields.String,
     'course_type': fields.String,
     'semester': fields.String,
@@ -86,6 +87,7 @@ class CourseDataList(Resource):
 
         course_data = {
             'crn': course.crn,
+            'course_number': course.course_number,
             'course_name': course.course_name,
             'course_type': course.course_type,
             'semester': course.semester,

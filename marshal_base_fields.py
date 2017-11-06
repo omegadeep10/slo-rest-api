@@ -10,6 +10,7 @@ faculty_fields = {
 
 class_fields = {
     'crn': fields.String,
+    'course_number': fields.String,
     'course_name': fields.String,
     'course_type': fields.String,
     'semester': fields.String,

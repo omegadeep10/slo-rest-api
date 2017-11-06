@@ -30,6 +30,7 @@ def slosList(slo):
 classParser = reqparse.RequestParser()
 classParser.add_argument('crn', type=str, required=True, help='CRN is required.')
 classParser.add_argument('faculty_id', type=str, required=True, help='Faculty ID is required.')
+classParser.add_argument('course_number', type=str, required=True, help='Course Number is required')
 classParser.add_argument('course_name', type=str, required=True,help='Course name is required.')
 classParser.add_argument('course_type', type=str, required=True, help='Course type is required.')
 classParser.add_argument('semester', type=str, required=True, help='Semester is required.')
@@ -72,8 +73,9 @@ class Course(Resource):
     course.faculty_id = args['faculty_id']
     course.course_name = args['course_name']
     course.course_type = args['course_type']
-    # course.course_year = args['course_year'] # Don't update course year. Weird bugs, plus not a use-case anyways
     course.semester = args['semester']
+    course.course_number = args['course_number']
+    # course.course_year = args['course_year'] # Don't update course year. Weird bugs, plus not a use-case anyways
 
     session.commit()
     return course
@@ -108,7 +110,7 @@ class CourseList(Resource):
     if (existingCourse):
         abort(400, message="Course with the crn {} already exists".format(args['crn']))
     
-    newCourse = CourseModel(args['crn'], args['faculty_id'], args['course_name'], args['course_type'], args['semester'], args['course_year'])
+    newCourse = CourseModel(args['crn'], args['faculty_id'], args['course_number'], args['course_name'], args['course_type'], args['semester'], args['course_year'])
     
     validSLOs= []
     for sloObject in args['assigned_slos']:

@@ -46,6 +46,7 @@ class CourseModel(Base):
 
     crn = Column(String(5), primary_key=True)
     faculty_id = Column(String(9), ForeignKey('Faculty.faculty_id'), nullable=False)
+    course_number = Column(String(5), nullable=False)
     course_name = Column(String(255), nullable=False)
     course_type = Column(String(25))
     semester = Column(String(6))
@@ -69,9 +70,10 @@ class CourseModel(Base):
     def __str__(self):
       return "Course object: (crn='%s')" % self.crn
     
-    def __init__(self, crn, faculty_id, course_name, course_type, semester, course_year):
+    def __init__(self, crn, faculty_id, course_number, course_name, course_type, semester, course_year):
       self.crn = crn
       self.faculty_id = faculty_id
+      self.course_number = course_number
       self.course_name = course_name
       self.course_type = course_type
       self.semester = semester

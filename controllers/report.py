@@ -23,6 +23,9 @@ def safeDivision(x, y):
 
 # Responsible for generating first sheet and populating with raw user data
 def generateRawData(excelWorkbook, course):
+    bold_format = excelWorkbook.add_format({'bold': True})
+    percentage_format = excelWorkbook.add_format({'num_format': '0.0%'})
+
     worksheet = excelWorkbook.add_worksheet(course.crn) #adds a worksheet to the workbook
     row, column = 0, 0
     
@@ -39,7 +42,7 @@ def generateRawData(excelWorkbook, course):
         column = column + 1
 
         for performance_indicator in assignedSlo.slo.performance_indicators:
-            worksheet.write(row, column, performance_indicator.performance_indicator_description)
+            worksheet.write(row, column, performance_indicator.performance_indicator_description, bold_format)
             column = column + 1
         
         row = row + 1
@@ -47,7 +50,7 @@ def generateRawData(excelWorkbook, course):
 
         # Output data below the header (Student_id, score for PI 1, Score for PI 2, Score for PI 3)
         for assessment in assessments:
-            worksheet.write(row, column, assessment.student_id)
+            worksheet.write(row, column, assessment.student_id + " " + assessment.student.last_name + ", " + assessment.student.first_name)
             column = column + 1
 
             for score in assessment.scores:
@@ -62,11 +65,11 @@ def generateRawData(excelWorkbook, course):
         column = 0
 
         # Header row for Summary data
-        worksheet.write(row, column, 'Number of students who scored...')
+        # worksheet.write(row, column, 'Number of students who scored...') # Decided against this
         column = column + 1
 
         for performance_indicator in assignedSlo.slo.performance_indicators:
-            worksheet.write(row, column, performance_indicator.performance_indicator_description)
+            worksheet.write(row, column, performance_indicator.performance_indicator_description, bold_format)
             column = column + 1
         
         row = row + 1
@@ -105,7 +108,7 @@ def generateRawData(excelWorkbook, course):
 
             percentForExemplary = safeDivision(getScoreCount(assessments, 4, performance_indicator.performance_indicator_id), len(assessments))
             percentForSatisfactory = safeDivision(getScoreCount(assessments, 3, performance_indicator.performance_indicator_id), len(assessments))
-            worksheet.write(row, column, percentForExemplary + percentForSatisfactory)
+            worksheet.write(row, column, (percentForExemplary + percentForSatisfactory), percentage_format)
             column = column + 1
 
 

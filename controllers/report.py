@@ -26,7 +26,7 @@ def generateRawData(excelWorkbook, course):
     bold_format = excelWorkbook.add_format({'bold': True})
     percentage_format = excelWorkbook.add_format({'num_format': '0.0%'})
 
-    worksheet = excelWorkbook.add_worksheet(course.crn) #adds a worksheet to the workbook
+    worksheet = excelWorkbook.add_worksheet(course.course_type + " " + course.course_number) #adds a worksheet to the workbook
     row, column = 0, 0
     
     for assignedSlo in course.assigned_slos:
@@ -34,8 +34,9 @@ def generateRawData(excelWorkbook, course):
 
         # CRN top left, SLO description right next to it
         worksheet.write(row, column, "ITEC " + course.course_number, bold_format) #adds data to the worksheet going by row and column numbers then the actual data
-        worksheet.write(row, column + 1, course.crn)
-        worksheet.write(row, column + 2, assignedSlo.slo_id + " : " + assignedSlo.slo.slo_description)
+        worksheet.write(row, column + 1, course.course_type)
+        worksheet.write(row, column + 2, course.crn)
+        worksheet.write(row, column + 3, assignedSlo.slo_id + " : " + assignedSlo.slo.slo_description)
         
         # generate header row (Student, PI 1, PI 2, etc.)
         row = row + 1

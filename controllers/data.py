@@ -20,6 +20,10 @@ slo_data_fields = {
     'performance_indicators': fields.List(fields.Nested(pi_data_fields))
 }
 
+slo_data_extra_fields = {
+    'total_assessments': fields.Integer
+}
+
 class_data_fields = {
     'crn': fields.String,
     'course_name': fields.String,
@@ -57,50 +61,45 @@ def generateSummaryData(listOfAssessments, SLOModel):
 class SLODataList(Resource):
     @jwt_required()
     @checkadmin
-    @marshal_with(slo_data_fields)
+    @marshal_with({**slo_data_fields, **slo_data_extra_fields})
     def get(self, slo_id):
-        slo_data_formatted = []
         slo = session.query(SLOModel).filter(SLOModel.slo_id == slo_id).first()
         slo_assessments = session.query(AssessmentModel).filter(AssessmentModel.slo_id == slo.slo_id).all()
 
-        slo_data_formatted.append({
+        slo_data = {
             'slo_id': slo.slo_id,
             'slo_description': slo.slo_description,
+            'total_assessments': len(slo_assessments),
             'performance_indicators': generateSummaryData(slo_assessments, slo)
-        })
+        }
         
-        return slo_data_formatted
+        return slo_data
 
 class CourseDataList(Resource):
     
     @jwt_required()
     @checkadmin
     @marshal_with(class_data_fields)
-    def get(self):
-        course_data_formatted = []
-        courses = session.query(CourseModel).all()
-        
-        for course in courses:
-            course_assessments = session.query(AssessmentModel).filter(AssessmentModel.crn == course.crn).all()
+    def get(self, crn):
+        course = session.query(CourseModel).filter(CourseModel.crn == crn).first()
+        course_assessments = session.query(AssessmentModel).filter(AssessmentModel.crn == course.crn).all()
 
-            course_data = {
-                'crn': course.crn,
-                'course_name': course.course_name,
-                'course_type': course.course_type,
-                'semester': course.semester,
-                'course_year': course.course_year,
-                'total_students': len(course.students),
-                'assigned_slos': [],
-                'completion': course.completion
-            }
+        course_data = {
+            'crn': course.crn,
+            'course_name': course.course_name,
+            'course_type': course.course_type,
+            'semester': course.semester,
+            'course_year': course.course_year,
+            'total_students': len(course.students),
+            'assigned_slos': [],
+            'completion': course.completion
+        }
 
-            for slo in course.assigned_slos:
-                course_data['assigned_slos'].append({
-                    'slo_id': slo.slo_id,
-                    'slo_description': slo.slo.slo_description,
-                    'performance_indicators': generateSummaryData(course_assessments, slo.slo)
-                })
-            
-            course_data_formatted.append(course_data)
+        for slo in course.assigned_slos:
+            course_data['assigned_slos'].append({
+                'slo_id': slo.slo_id,
+                'slo_description': slo.slo.slo_description,
+                'performance_indicators': generateSummaryData(course_assessments, slo.slo)
+            })
         
-        return course_data_formatted
+        return course_data

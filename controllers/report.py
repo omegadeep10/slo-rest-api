@@ -3,7 +3,7 @@ from flask_restful import Resource, reqparse, marshal_with, fields, abort
 from controllers.auth import checkadmin
 from db import session
 import xlsxwriter
-import os
+import os, time
 from models import AssessmentModel, PerfIndicatorModel, ScoreModel, CourseModel, SLOModel
 
 def getScoreCount(ListOfAssessments, desiredScore, performanceIndicatorId):
@@ -33,12 +33,13 @@ def generateRawData(excelWorkbook, course):
         assessments = session.query(AssessmentModel).filter(AssessmentModel.crn == course.crn, AssessmentModel.slo_id == assignedSlo.slo_id).all() #queries the tables for information
 
         # CRN top left, SLO description right next to it
-        worksheet.write(row, column, course.crn) #adds data to the worksheet going by row and column numbers then the actual data
-        worksheet.write(row, column + 1, assignedSlo.slo_id + " : " + assignedSlo.slo.slo_description)
+        worksheet.write(row, column, "ITEC " + course.course_number, bold_format) #adds data to the worksheet going by row and column numbers then the actual data
+        worksheet.write(row, column + 1, course.crn)
+        worksheet.write(row, column + 2, assignedSlo.slo_id + " : " + assignedSlo.slo.slo_description)
         
         # generate header row (Student, PI 1, PI 2, etc.)
         row = row + 1
-        worksheet.write(row, column, 'Student')
+        # worksheet.write(row, column, 'Student') # Decided against "Student in top left"
         column = column + 1
 
         for performance_indicator in assignedSlo.slo.performance_indicators:
@@ -77,7 +78,7 @@ def generateRawData(excelWorkbook, course):
 
         # Summary data
         for scoreRating in ([4, 'Exemplary'], [3, 'Satisfactory'], [2, 'Developing'], [1, 'Unsatisfactory']):
-            worksheet.write(row, column, scoreRating[1])
+            worksheet.write(row, column, scoreRating[1], bold_format)
             column = column + 1
             
             for performance_indicator in assignedSlo.slo.performance_indicators:
@@ -117,6 +118,17 @@ def generateRawData(excelWorkbook, course):
         column = 0
 
 
+def cleanup(directory):
+    now = time.time()
+    old = now - (7 * 24 * 60 * 60) # delete all reports older than one week
+
+    for f in os.listdir(directory):
+        path = os.path.join(directory, f)
+        if (os.path.isfile(path)):
+            stat = os.stat(path)
+            if stat.st_ctime < old:
+                os.remove(path)
+
 class Report(Resource):
 
     @jwt_required()
@@ -124,17 +136,14 @@ class Report(Resource):
     def get(self):
         courses = session.query(CourseModel).all()
 
-        # Remove the slos.xlsx file if it exists
-        try:
-            os.remove('static/slos.xlsx')
-        except OSError:
-            pass
+        cleanup('static')
 
         # Generate workbook
-        workbook = xlsxwriter.Workbook('static/slos.xlsx') #creates the workbook and names it
+        timestamp = time.strftime("%Y%m%d-%H%M%S")
+        workbook = xlsxwriter.Workbook('static/slos-export-' + timestamp + '.xlsx') #creates the workbook and names it
         for course in courses:
             generateRawData(workbook, course)
 
         workbook.close() #closes the workbook
 
-        return { 'file_url': '/static/slos.xlsx' }, 200
+        return { 'file_url': '/static/slos-export-'+ timestamp + '.xlsx' }, 200

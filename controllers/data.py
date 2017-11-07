@@ -1,5 +1,5 @@
 from flask_jwt import jwt_required, current_identity
-from flask_restful import Resource, fields, marshal_with, reqparse
+from flask_restful import Resource, fields, marshal_with, reqparse, abort
 from controllers.auth import checkadmin
 from db import session
 from models import CourseModel, AssessmentModel, SLOModel
@@ -39,6 +39,7 @@ class_data_fields = {
 # Input: List of AssessmentModel objects, SLO object
 # Output: List of PI data in the format specified by pi_data_fields
 def generateSummaryData(listOfAssessments, SLOModel):
+
     summaryData = [] #container
     relevant_assessments = [x for x in listOfAssessments if x.slo_id == SLOModel.slo_id] # Filters assessments to just be the ones for this specific SLO
     relevant_scores = [] #container that will hold all scores
@@ -59,13 +60,26 @@ def generateSummaryData(listOfAssessments, SLOModel):
     
     return summaryData
 
+parser = reqparse.RequestParser()
+parser.add_argument('filter_by', default=None, type=str, required=False, location="args", help='Filter option must be ONLINE or F2F')
+
 class SLODataList(Resource):
     @jwt_required()
     @checkadmin
     @marshal_with({**slo_data_fields, **slo_data_extra_fields})
     def get(self, slo_id):
+        args = parser.parse_args()
+        if args['filter_by']:
+            if args['filter_by'] == 'ONLINE' or args['filter_by'] == 'F2F':
+                pass
+            else:
+                abort(422, message="filter_by parameter must be ONLINE or F2F")
+
         slo = session.query(SLOModel).filter(SLOModel.slo_id == slo_id).first()
-        slo_assessments = session.query(AssessmentModel).filter(AssessmentModel.slo_id == slo.slo_id).all()
+        if args['filter_by']:
+            slo_assessments = session.query(AssessmentModel).join(AssessmentModel.course).filter(AssessmentModel.slo_id == slo_id, CourseModel.course_type == args['filter_by']).all()
+        else:
+            slo_assessments = session.query(AssessmentModel).filter(AssessmentModel.slo_id == slo.slo_id).all()
 
         slo_data = {
             'slo_id': slo.slo_id,

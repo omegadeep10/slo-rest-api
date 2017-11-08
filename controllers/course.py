@@ -42,7 +42,15 @@ class Course(Resource):
   
   @marshal_with({**class_fields, **class_extra_fields, **class_student_fields})
   def get(self, crn):
-    return session.query(CourseModel).filter(CourseModel.crn == crn).first()
+    course = session.query(CourseModel).filter(CourseModel.crn == crn).first()
+
+    if not course:
+      return abort(404, message="Course with the crn {} doesn't exist".format(crn))
+
+    if course.faculty.faculty_id == current_identity.faculty_id or current_identity.user_type == "1":
+      return course
+    else:
+      abort(403, message="You are not authorized to view this class data.")
   
   
   @marshal_with({**class_fields, **class_extra_fields, **class_student_fields})
@@ -54,10 +62,15 @@ class Course(Resource):
 
     # Get the course object from db
     course = session.query(CourseModel).filter(CourseModel.crn == crn).first()
+    
     # If course doesn't exist, abort
     if not course: 
       return abort(404, message="Course with the crn {} doesn't exist".format(crn))
-
+    
+    # If current_requester did not make the course, OR isn't the admin:
+    if (course.faculty.faculty_id != current_identity.faculty_id) and (current_identity.user_type != "1"):
+      abort(403, message="You are not authorized to view this class data.")
+    
     validSLOs = [] # If SLO exists, create an AssignedSLOModel object and add to this list
     
     for sloObject in args['assigned_slos']: # For each SLO passed in
@@ -83,7 +96,12 @@ class Course(Resource):
 
   def delete(self, crn):
     course = session.query(CourseModel).filter(CourseModel.crn == crn).first()
-    if (course):
+    if course:
+      
+      # Ensure requester made the course or is admin. else, abort with 403 forbidden
+      if (course.faculty.faculty_id != current_identity.faculty_id) and (current_identity.user_type != "1"):
+        abort(403, message="You are not authorized to delete this course.")
+
       session.delete(course)
       session.commit()
       session.close()

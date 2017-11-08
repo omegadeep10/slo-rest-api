@@ -26,7 +26,7 @@ def generateRawData(excelWorkbook, course):
     bold_format = excelWorkbook.add_format({'bold': True})
     percentage_format = excelWorkbook.add_format({'num_format': '0.0%'})
 
-    worksheet = excelWorkbook.add_worksheet(course.course_type + " " + course.course_number) #adds a worksheet to the workbook
+    worksheet = excelWorkbook.add_worksheet(course.course_type + " " + course.course_number + " - " + course.crn) #adds a worksheet to the workbook
     row, column = 0, 0
     
     for assignedSlo in course.assigned_slos:

@@ -191,14 +191,14 @@ class PerfIndicatorModel(Base):
     def __str__(self):
       return "PerfIndicator object: (performance_indicator_id='%s')" % self.performance_indicator_id
     
-    def __init__(self,performance_indicator_id,slo_id,performance_indicator_description,unsatisfactory_description,developing_description,satisfaction_description,exemplary_description):
+    def __init__(self, performance_indicator_id, slo_id, performance_indicator_description, unsatisfactory_description, developing_description, satisfactory_description, exemplary_description):
       self.performance_indicator_id = performance_indicator_id
       self.slo_id = slo_id
       self.performance_indicator_description = performance_indicator_description
-      self.unsatisfsctory_description = unsatisfactory_description
+      self.unsatisfactory_description = unsatisfactory_description
       self.developing_description = developing_description
-      self.satisfactory_description = satisfaction_description
-      self.exempary_description = exemplary_description
+      self.satisfactory_description = satisfactory_description
+      self.exemplary_description = exemplary_description
 
 
 

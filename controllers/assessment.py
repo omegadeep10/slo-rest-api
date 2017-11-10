@@ -43,7 +43,7 @@ class Assessment(Resource):
     if not assessment: abort(404, message="Assessment doesn't exist")
     
     # Ensure requester is authorized to view said assessment
-    if (assessment.faculty.faculty_id != current_identity.faculty_id) and (current_identity.user_type != "1"):
+    if (assessment.course.faculty.faculty_id != current_identity.faculty_id) and (current_identity.user_type != "1"):
       abort(403, message="You are not authorized to view this assessment.")
 
     return assessment
@@ -55,7 +55,7 @@ class Assessment(Resource):
     assessment = session.query(AssessmentModel).filter(AssessmentModel.assessment_id == assessment_id).first()
     if not assessment: abort(404, message="Assessment doesn't exist") 
 
-    if (assessment.faculty.faculty_id != current_identity.faculty_id) and (current_identity.user_type != "1"):
+    if (assessment.course.faculty.faculty_id != current_identity.faculty_id) and (current_identity.user_type != "1"):
       abort(403, message="You are not authorized to update this assessment.")
 
     total_score = reduce((lambda total, scoreObj: total + scoreObj['score']), [0] + args['scores']) # a fancy for loop with an accumulator
@@ -74,7 +74,7 @@ class Assessment(Resource):
     if (assessment):
       
       # Ensure requester is authorized to delete this assessment
-      if (assessment.faculty.faculty_id != current_identity.faculty_id) and (current_identity.user_type != "1"):
+      if (assessment.course.faculty.faculty_id != current_identity.faculty_id) and (current_identity.user_type != "1"):
         abort(403, message="You are not authorized to delete this assessment.")
 
       for each_score in assessment.scores:

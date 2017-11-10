@@ -4,6 +4,7 @@ from controllers.auth import checkadmin
 from db import session
 import xlsxwriter
 import os, time
+from sqlalchemy import extract
 from models import AssessmentModel, PerfIndicatorModel, ScoreModel, CourseModel, SLOModel
 
 def getScoreCount(ListOfAssessments, desiredScore, performanceIndicatorId):
@@ -21,14 +22,19 @@ def getScoreCount(ListOfAssessments, desiredScore, performanceIndicatorId):
 def safeDivision(x, y):
     return 0 if x == 0 else x / y
 
-def generateRawSLOData(excelWorkbook, slo):
+def generateRawSLOData(excelWorkbook, slo, year):
     bold_format = excelWorkbook.add_format({'bold': True})
     percentage_format = excelWorkbook.add_format({'num_format': '0.0%'})
 
     worksheet = excelWorkbook.add_worksheet("SLO " + slo.slo_id) #adds a worksheet to the workbook
     row, column = 0, 0
     
-    assessments = session.query(AssessmentModel).filter(AssessmentModel.slo_id == slo.slo_id).order_by(AssessmentModel.crn).all() #queries the tables for information
+    if year:
+        assessments = session.query(AssessmentModel).join(AssessmentModel.course).\
+        filter(AssessmentModel.slo_id == slo.slo_id, extract('year', CourseModel.course_year) == year).\
+        order_by(AssessmentModel.crn).all()
+    else:
+        assessments = session.query(AssessmentModel).filter(AssessmentModel.slo_id == slo.slo_id).order_by(AssessmentModel.crn).all() #queries the tables for information
 
     # SLO Id top left, SLO description right next to it
     worksheet.write(row, column, "SLO " + slo.slo_id, bold_format) #adds data to the worksheet going by row and column numbers then the actual data
@@ -136,7 +142,8 @@ def generateRawCourseData(excelWorkbook, course):
         worksheet.write(row, column, "ITEC " + course.course_number, bold_format) #adds data to the worksheet going by row and column numbers then the actual data
         worksheet.write(row, column + 1, course.course_type)
         worksheet.write(row, column + 2, course.crn)
-        worksheet.write(row, column + 3, assignedSlo.slo_id + " : " + assignedSlo.slo.slo_description)
+        worksheet.write(row, column + 3, course.course_year.year)
+        worksheet.write(row, column + 4, assignedSlo.slo_id + " : " + assignedSlo.slo.slo_description)
         
         # generate header row (Student, PI 1, PI 2, etc.)
         row = row + 1
@@ -230,12 +237,23 @@ def cleanup(directory):
             if stat.st_ctime < old:
                 os.remove(path)
 
+
+parser = reqparse.RequestParser()
+parser.add_argument('year', default=None, type=str, required=False, location="args", help='Year option must be a valid 4 digit year')
+
 # => /reports/courses?year=2017 TO-DO Add optional year filtering
 class CourseReports(Resource):
     @jwt_required()
     @checkadmin
     def get(self):
-        courses = session.query(CourseModel).all()
+        args = parser.parse_args()
+        if (args['year'] and len(args['year']) != 4 and not args['year'].isdigit()):
+            abort(422, message="year parameter must be a 4 digit year")
+        
+        if (args['year']):
+            courses = session.query(CourseModel).filter(extract('year', CourseModel.course_year) == args['year']).all()
+        else:
+            courses = session.query(CourseModel).all()
 
         cleanup('static')
 
@@ -255,6 +273,10 @@ class SLOReports(Resource):
     @jwt_required()
     @checkadmin
     def get(self):
+        args = parser.parse_args()
+        if (args['year'] and len(args['year']) != 4 and not args['year'].isdigit()):
+            abort(422, message="year parameter must be a 4 digit year")
+
         slos = session.query(SLOModel).all()
         cleanup('static')
 
@@ -262,7 +284,7 @@ class SLOReports(Resource):
         workbook = xlsxwriter.Workbook('static/slos-export-' + timestamp + '.xlsx') #creates the workbook and names it
         
         for slo in slos:
-            generateRawSLOData(workbook, slo)
+            generateRawSLOData(workbook, slo, args['year'])
         
         workbook.close()
 

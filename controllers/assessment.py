@@ -38,7 +38,15 @@ class Assessment(Resource):
 
   @marshal_with(assessment_fields)
   def get(self, assessment_id):
-    return session.query(AssessmentModel).filter(AssessmentModel.assessment_id == assessment_id).first()
+    assessment = session.query(AssessmentModel).filter(AssessmentModel.assessment_id == assessment_id).first()
+
+    if not assessment: abort(404, message="Assessment doesn't exist")
+    
+    # Ensure requester is authorized to view said assessment
+    if (assessment.faculty.faculty_id != current_identity.faculty_id) and (current_identity.user_type != "1"):
+      abort(403, message="You are not authorized to view this assessment.")
+
+    return assessment
   
   @marshal_with(assessment_fields)
   def put(self, assessment_id):
@@ -46,6 +54,9 @@ class Assessment(Resource):
 
     assessment = session.query(AssessmentModel).filter(AssessmentModel.assessment_id == assessment_id).first()
     if not assessment: abort(404, message="Assessment doesn't exist") 
+
+    if (assessment.faculty.faculty_id != current_identity.faculty_id) and (current_identity.user_type != "1"):
+      abort(403, message="You are not authorized to update this assessment.")
 
     total_score = reduce((lambda total, scoreObj: total + scoreObj['score']), [0] + args['scores']) # a fancy for loop with an accumulator
     assessment.total_score = total_score
@@ -61,8 +72,14 @@ class Assessment(Resource):
   def delete(self, assessment_id):
     assessment = session.query(AssessmentModel).filter(AssessmentModel.assessment_id == assessment_id).first()
     if (assessment):
+      
+      # Ensure requester is authorized to delete this assessment
+      if (assessment.faculty.faculty_id != current_identity.faculty_id) and (current_identity.user_type != "1"):
+        abort(403, message="You are not authorized to delete this assessment.")
+
       for each_score in assessment.scores:
         session.delete(each_score)
+      
       session.delete(assessment)
       session.commit()
       return {}, 204 # Delete successful, so return empty 204 successful response

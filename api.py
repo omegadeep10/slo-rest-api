@@ -32,7 +32,7 @@ from controllers.course import Course, CourseList
 from controllers.student import Student
 from controllers.slo import SLO, SLOList
 from controllers.progress import Progress
-from controllers.report import Report
+from controllers.report import CourseReports, SLOReports
 from controllers.data import CourseDataList, SLODataList
 
 # NOTE: To obtain auth token, use the /auth endpoint, passing in a JSON object with email and password fields.
@@ -64,8 +64,10 @@ api.add_resource(SLOList, '/slos')
 #/progress => GET
 api.add_resource(Progress, '/progress')
 
-#/report => GET
-api.add_resource(Report,'/report')
+#/report/courses => GET
+api.add_resource(CourseReports,'/report/courses')
+#/report/slos => GET
+api.add_resource(SLOReports, '/report/slos')
 
 #/data/course/<crn> => GET
 api.add_resource(CourseDataList, '/data/course/<string:crn>')

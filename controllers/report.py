@@ -21,8 +21,108 @@ def getScoreCount(ListOfAssessments, desiredScore, performanceIndicatorId):
 def safeDivision(x, y):
     return 0 if x == 0 else x / y
 
+def generateRawSLOData(excelWorkbook, slo):
+    bold_format = excelWorkbook.add_format({'bold': True})
+    percentage_format = excelWorkbook.add_format({'num_format': '0.0%'})
+
+    worksheet = excelWorkbook.add_worksheet("SLO " + slo.slo_id) #adds a worksheet to the workbook
+    row, column = 0, 0
+    
+    assessments = session.query(AssessmentModel).filter(AssessmentModel.slo_id == slo.slo_id).order_by(AssessmentModel.crn).all() #queries the tables for information
+
+    # SLO Id top left, SLO description right next to it
+    worksheet.write(row, column, "SLO " + slo.slo_id, bold_format) #adds data to the worksheet going by row and column numbers then the actual data
+    worksheet.write(row, column + 1, slo.slo_description)
+    
+    row = row + 1
+    # Generate PI id => description mapping table
+    for performance_indicator in slo.performance_indicators:
+        worksheet.write(row, column, performance_indicator.performance_indicator_id, bold_format)
+        worksheet.write(row, column + 1, performance_indicator.performance_indicator_description)
+        row = row + 1
+    
+    row = row + 1
+    
+    # worksheet.write(row, column, 'Student') # Decided against "Student in top left"
+    column = column + 1
+    # generate header row (Student, PI 1, PI 2, etc.)
+    for performance_indicator in slo.performance_indicators:
+        worksheet.write(row, column, performance_indicator.performance_indicator_id, bold_format)
+        column = column + 1
+    
+    row = row + 1
+    column = 0
+
+    # Output data below the header (Student_id, score for PI 1, Score for PI 2, Score for PI 3)
+    for assessment in assessments:
+        worksheet.write(row, column, assessment.crn + " : " + assessment.student_id + " " + assessment.student.last_name + ", " + assessment.student.first_name)
+        column = column + 1
+
+        for score in assessment.scores:
+            worksheet.write(row, column, score.score)
+            column = column + 1
+        
+        column = 0
+        row = row + 1
+
+    # Empty row between raw data and summary statistics
+    row = row + 1
+    column = 0
+
+    # Header row for Summary data
+    # worksheet.write(row, column, 'Number of students who scored...') # Decided against this
+    column = column + 1
+
+    for performance_indicator in slo.performance_indicators:
+        worksheet.write(row, column, performance_indicator.performance_indicator_id, bold_format)
+        column = column + 1
+    
+    row = row + 1
+    column = 0
+
+    # Summary data
+    for scoreRating in ([4, 'Exemplary'], [3, 'Satisfactory'], [2, 'Developing'], [1, 'Unsatisfactory']):
+        worksheet.write(row, column, scoreRating[1], bold_format)
+        column = column + 1
+        
+        for performance_indicator in slo.performance_indicators:
+            worksheet.write(row, column, getScoreCount(assessments, scoreRating[0], performance_indicator.performance_indicator_id))
+            column = column + 1
+        
+        row = row + 1
+        column = 0
+    
+    # Empty row between summary and totals
+    row = row + 1
+
+    # Totals for Summary
+    worksheet.write(row, column, 'Total')
+    column = column + 1
+
+    for performance_indicator in slo.performance_indicators:
+        worksheet.write(row, column, len(assessments))
+        column = column + 1
+    
+    row = row + 1
+    column = 0
+
+    worksheet.write(row, column, 'Percent who scored either Satisfactory or Exemplary')
+    column = column + 1
+
+    for performance_indicator in slo.performance_indicators:
+
+        percentForExemplary = safeDivision(getScoreCount(assessments, 4, performance_indicator.performance_indicator_id), len(assessments))
+        percentForSatisfactory = safeDivision(getScoreCount(assessments, 3, performance_indicator.performance_indicator_id), len(assessments))
+        worksheet.write(row, column, (percentForExemplary + percentForSatisfactory), percentage_format)
+        column = column + 1
+
+
+    # Two empty rows for separation between classes
+    row = row + 3
+    column = 0
+
 # Responsible for generating first sheet and populating with raw user data
-def generateRawData(excelWorkbook, course):
+def generateRawCourseData(excelWorkbook, course):
     bold_format = excelWorkbook.add_format({'bold': True})
     percentage_format = excelWorkbook.add_format({'num_format': '0.0%'})
 
@@ -130,8 +230,8 @@ def cleanup(directory):
             if stat.st_ctime < old:
                 os.remove(path)
 
-class Report(Resource):
-
+# => /reports/courses?year=2017 TO-DO Add optional year filtering
+class CourseReports(Resource):
     @jwt_required()
     @checkadmin
     def get(self):
@@ -143,8 +243,27 @@ class Report(Resource):
         timestamp = time.strftime("%Y%m%d-%H%M%S")
         workbook = xlsxwriter.Workbook('static/slos-export-' + timestamp + '.xlsx') #creates the workbook and names it
         for course in courses:
-            generateRawData(workbook, course)
+            generateRawCourseData(workbook, course)
 
         workbook.close() #closes the workbook
+
+        return { 'file_url': '/static/slos-export-'+ timestamp + '.xlsx' }, 200
+
+
+# => /reports/slos?year=2017 TO-DO Add optional year filtering
+class SLOReports(Resource):
+    @jwt_required()
+    @checkadmin
+    def get(self):
+        slos = session.query(SLOModel).all()
+        cleanup('static')
+
+        timestamp = time.strftime("%Y%m%d-%H%M%S")
+        workbook = xlsxwriter.Workbook('static/slos-export-' + timestamp + '.xlsx') #creates the workbook and names it
+        
+        for slo in slos:
+            generateRawSLOData(workbook, slo)
+        
+        workbook.close()
 
         return { 'file_url': '/static/slos-export-'+ timestamp + '.xlsx' }, 200

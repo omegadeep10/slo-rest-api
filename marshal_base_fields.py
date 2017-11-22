@@ -31,7 +31,8 @@ assigned_slo_fields = {
 
 slo_fields = {
 	'slo_id': fields.String,
-	'slo_description': fields.String
+	'slo_description': fields.String,
+    'archived': fields.Boolean
 }
 
 performance_indicator_fields = {

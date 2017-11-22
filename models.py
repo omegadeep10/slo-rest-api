@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, ForeignKey, Table
+from sqlalchemy import Column, Integer, String, Date, ForeignKey, Table, Boolean
 from sqlalchemy import select, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -105,6 +105,7 @@ class SLOModel(Base):
 
   slo_id = Column(String(9),primary_key = True)
   slo_description = Column(String(255))
+  archived = Column(Boolean, unique=False, default=False)
   performance_indicators = relationship("PerfIndicatorModel", back_populates="slos")
   courses = association_proxy("courses", "course")
 

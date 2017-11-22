@@ -12,6 +12,10 @@ slo_detailed_fields = {
     'courses': fields.List(fields.Nested({'crn': fields.String(attribute='course.crn')}))
 }
 
+slo_total_pi_fields = {
+    'total_performance_indicators': fields.Integer(attribute=lambda x: len(x.performance_indicators))
+}
+
 def perfList(performance_indicator):
   if 'performance_indicator_id' not in performance_indicator or 'performance_indicator_description' not in performance_indicator:
     raise ValueError("All perfcormance indicators must contain a performance_indicator_id and a performance_indicator_description.")
@@ -96,7 +100,7 @@ class SLO(Resource):
 
 class SLOList(Resource):
     @jwt_required()
-    @marshal_with({**slo_fields})
+    @marshal_with({**slo_fields, **slo_total_pi_fields})
     def get(self):
         return session.query(SLOModel).all()
     

@@ -69,11 +69,8 @@ class SLODataList(Resource):
     @marshal_with({**slo_data_fields, **slo_data_extra_fields})
     def get(self, slo_id):
         args = parser.parse_args()
-        if args['filter_by']:
-            if args['filter_by'] == 'ONLINE' or args['filter_by'] == 'F2F':
-                pass
-            else:
-                abort(422, message="filter_by parameter must be ONLINE or F2F")
+        if args['filter_by'] and (args['filter_by'] != 'ONLINE' and args['filter_by'] != 'F2F'):
+            abort(422, message="filter_by parameter must be ONLINE or F2F")
 
         slo = session.query(SLOModel).filter(SLOModel.slo_id == slo_id).first()
         if args['filter_by']:

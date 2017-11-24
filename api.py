@@ -35,6 +35,7 @@ from controllers.slo import SLO, SLOList, SLOArchive
 from controllers.progress import Progress
 from controllers.report import CourseReports, SLOReports
 from controllers.data import CourseDataList, SLODataList
+from controllers.account import AccountList, Account, ResetPassword
 
 # NOTE: To obtain auth token, use the /auth endpoint, passing in a JSON object with email and password fields.
 #       This endpoint is not shown here since it's automatically setup by flask_jwt.
@@ -77,6 +78,14 @@ api.add_resource(SLOReports, '/report/slos')
 api.add_resource(CourseDataList, '/data/course/<string:crn>')
 # /data/slo/<slo_id> => GET
 api.add_resource(SLODataList, '/data/slo/<string:slo_id>')
+
+# /accounts => GET
+api.add_resource(AccountList, '/accounts')
+# /account/<account_id> => GET, PUT, DELETE
+api.add_resource(Account, '/account/<int:account_id>')
+
+# /resetpassword/<account_id> => POST
+api.add_resource(ResetPassword, '/resetpassword/<int:account_id>')
 
 
 if __name__ == '__main__':

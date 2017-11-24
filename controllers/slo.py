@@ -2,7 +2,7 @@ from flask_jwt import jwt_required, current_identity
 from flask_restful import Resource, reqparse, marshal_with, fields, abort
 from controllers.auth import checkadmin
 from db import session
-from models import SLOModel, AssessmentModel, AssignedSLOModel, PerfIndicatorModel
+from models import SLOModel, AssessmentModel, AssignedSLOModel, PerfIndicatorModel, ScoreModel
 from marshal_base_fields import slo_fields, performance_indicator_fields, class_fields
 import re, sys
 
@@ -66,16 +66,37 @@ class SLO(Resource):
         slo = session.query(SLOModel).filter(SLOModel.slo_id == slo_id).first()
         if not slo: abort(404, message="SLO with the slo_id {} doesn't exist".format(slo_id)) 
 
+        # Convert pi args to list of PI objects
         perf_model_list = []
         for pi in args['performance_indicators']:
             perf = PerfIndicatorModel(pi['performance_indicator_id'], slo_id, pi['performance_indicator_description'], pi['unsatisfactory_description'], pi['developing_description'], pi['satisfactory_description'], pi['exemplary_description'])
             perf_model_list.append(perf)
         
+        # If there are any PIs to be deleted, confirm that no dependent Score objects exist
+        to_be_deleted_pis = [x for x in slo.performance_indicators if x.performance_indicator_id not in [x.performance_indicator_id for x in perf_model_list]]
+        for pi in to_be_deleted_pis:
+            dependent_scores = session.query(ScoreModel).filter(ScoreModel.performance_indicator_id == pi.performance_indicator_id).all()
+            if (len(dependent_scores) > 0):
+                abort(409, message="Performance indicator with the id {} cannot be deleted since Assessments exist that reference it.".format(pi.performance_indicator_id))
+
         for pi in slo.performance_indicators:
-            session.delete(pi)
+            for new_pi in perf_model_list:
+                if (new_pi.performance_indicator_id == pi.performance_indicator_id):
+                    pi.performance_indicator_description = new_pi.performance_indicator_description
+                    pi.unsatisfactory_description = new_pi.unsatisfactory_description
+                    pi.developing_description = new_pi.developing_description
+                    pi.satisfactory_description = new_pi.satisfactory_description
+                    pi.exemplary_description = new_pi.exemplary_description
         
+        # Add new PIs to the list
+        new_pis = [x for x in perf_model_list if x.performance_indicator_id not in [x.performance_indicator_id for x in slo.performance_indicators]]
+        slo.performance_indicators = slo.performance_indicators + new_pis
+
+        # Delete PIs not in the user's PI list, if there are no dependent scores
+        for pi in to_be_deleted_pis:
+            session.delete(pi)
+
         slo.slo_description = args['slo_description']
-        slo.performance_indicators = perf_model_list
         session.commit()
         return slo
 

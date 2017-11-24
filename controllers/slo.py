@@ -98,6 +98,20 @@ class SLO(Resource):
         return {}, 204 # Delete successful, so return empty 204 successful response
 
 
+# Toggles archived attribute of SLOs. used by /slo/slo_id/archive
+class SLOArchive(Resource):
+    @jwt_required()
+    @checkadmin
+    @marshal_with({**slo_fields, **slo_detailed_fields})
+    def post(self, slo_id):
+        slo = session.query(SLOModel).filter(SLOModel.slo_id == slo_id).first()
+
+        if not slo: abort(404, message="SLO with the slo_id {} doesn't exist".format(slo_id))
+        slo.archived = not slo.archived
+        session.commit()
+        return slo
+
+
 class SLOList(Resource):
     @jwt_required()
     @marshal_with({**slo_fields, **slo_total_pi_fields})

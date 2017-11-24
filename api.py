@@ -31,7 +31,7 @@ from controllers.user import User
 from controllers.assessment import Assessment, AssessmentList
 from controllers.course import Course, CourseList
 from controllers.student import Student
-from controllers.slo import SLO, SLOList
+from controllers.slo import SLO, SLOList, SLOArchive
 from controllers.progress import Progress
 from controllers.report import CourseReports, SLOReports
 from controllers.data import CourseDataList, SLODataList
@@ -62,18 +62,22 @@ api.add_resource(SLO, '/slo/<string:slo_id>')
 # /slos => GET
 api.add_resource(SLOList, '/slos')
 
-#/progress => GET
+# /slo/<slo_id>/archive
+api.add_resource(SLOArchive, '/slo/<string:slo_id>/archive')
+
+# /progress => GET
 api.add_resource(Progress, '/progress')
 
-#/report/courses => GET
+# /report/courses => GET
 api.add_resource(CourseReports,'/report/courses')
-#/report/slos => GET
+# /report/slos => GET
 api.add_resource(SLOReports, '/report/slos')
 
-#/data/course/<crn> => GET
+# /data/course/<crn> => GET
 api.add_resource(CourseDataList, '/data/course/<string:crn>')
-#/data/slo/<slo_id> => GET
+# /data/slo/<slo_id> => GET
 api.add_resource(SLODataList, '/data/slo/<string:slo_id>')
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000, debug=True)

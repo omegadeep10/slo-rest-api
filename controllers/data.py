@@ -1,5 +1,6 @@
 from flask_jwt import jwt_required, current_identity
 from flask_restful import Resource, fields, marshal_with, reqparse, abort
+from sqlalchemy import extract
 from controllers.auth import checkadmin
 from db import session
 from models import CourseModel, AssessmentModel, SLOModel
@@ -62,6 +63,7 @@ def generateSummaryData(listOfAssessments, SLOModel):
 
 parser = reqparse.RequestParser()
 parser.add_argument('filter_by', default=None, type=str, required=False, location="args", help='Filter option must be ONLINE or F2F')
+parser.add_argument('year', default=None, type=str, required=False, location="args", help='Year option must be a valid 4 digit year')
 
 class SLODataList(Resource):
     @jwt_required()
@@ -71,10 +73,22 @@ class SLODataList(Resource):
         args = parser.parse_args()
         if args['filter_by'] and (args['filter_by'] != 'ONLINE' and args['filter_by'] != 'F2F'):
             abort(422, message="filter_by parameter must be ONLINE or F2F")
+        if (args['year'] and len(args['year']) != 4 and not args['year'].isdigit()):
+            abort(422, message="year parameter must be a 4 digit year")
 
         slo = session.query(SLOModel).filter(SLOModel.slo_id == slo_id).first()
-        if args['filter_by']:
+        if not slo: abort(404, message="SLO with the slo_id {} doesn't exist".format(slo_id))
+        
+        if args['filter_by'] and args['year']:
+            slo_assessments = session.query(AssessmentModel).join(AssessmentModel.course).filter(
+                AssessmentModel.slo_id == slo_id,
+                CourseModel.course_type == args['filter_by'],
+                extract('year', CourseModel.course_year) == args['year']
+            ).all()
+        elif args['filter_by']:
             slo_assessments = session.query(AssessmentModel).join(AssessmentModel.course).filter(AssessmentModel.slo_id == slo_id, CourseModel.course_type == args['filter_by']).all()
+        elif args['year']:
+            slo_assessments = session.query(AssessmentModel).join(AssessmentModel.course).filter(AssessmentModel.slo_id == slo_id, extract('year', CourseModel.course_year) == args['year']).all()
         else:
             slo_assessments = session.query(AssessmentModel).filter(AssessmentModel.slo_id == slo.slo_id).all()
 

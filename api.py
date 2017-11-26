@@ -30,7 +30,7 @@ from controllers.register import Register
 from controllers.user import User
 from controllers.assessment import Assessment, AssessmentList
 from controllers.course import Course, CourseList
-from controllers.student import Student
+from controllers.student import Student, BatchStudent
 from controllers.slo import SLO, SLOList, SLOArchive
 from controllers.progress import Progress
 from controllers.report import CourseReports, SLOReports
@@ -57,6 +57,8 @@ api.add_resource(Course,'/course/<string:crn>')
 
 # /student/<student_id> => GET, POST
 api.add_resource(Student,'/student/<string:student_id>')
+# /student/batch => POST
+api.add_resource(BatchStudent, '/students/batch/<string:crn>')
 
 # /slo/<slo_id> => GET
 api.add_resource(SLO, '/slo/<string:slo_id>')

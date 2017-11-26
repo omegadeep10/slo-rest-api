@@ -1,7 +1,8 @@
-Flask==0.12.2
-SQLAlchemy==1.1.14
-Flask_RESTful==0.3.6
 Flask_Cors==3.0.3
-Werkzeug==0.12.2
+Flask_RESTful==0.3.6
+Flask==0.12.2
+openpyxl==2.4.9
 XlsxWriter==1.0.2
+Werkzeug==0.12.2
+SQLAlchemy==1.1.14
 Flask_JWT==0.3.2

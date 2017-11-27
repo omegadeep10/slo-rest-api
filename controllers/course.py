@@ -68,8 +68,8 @@ class Course(Resource):
       return abort(404, message="Course with the crn {} doesn't exist".format(crn))
     
     # If current_requester did not make the course, OR isn't the admin:
-    if (course.faculty.faculty_id != current_identity.faculty_id) and (current_identity.user_type != "1"):
-      abort(403, message="You are not authorized to view this class data.")
+    if (course.faculty.faculty_id != current_identity.faculty_id):
+      abort(403, message="You are not authorized to update this course.")
     
     validSLOs = [] # If SLO exists, create an AssignedSLOModel object and add to this list
     
@@ -99,7 +99,7 @@ class Course(Resource):
     if course:
       
       # Ensure requester made the course or is admin. else, abort with 403 forbidden
-      if (course.faculty.faculty_id != current_identity.faculty_id) and (current_identity.user_type != "1"):
+      if (course.faculty.faculty_id != current_identity.faculty_id):
         abort(403, message="You are not authorized to delete this course.")
 
       session.delete(course)

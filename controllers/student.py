@@ -37,8 +37,8 @@ class Student(Resource):
         student = session.query(StudentModel).filter(StudentModel.student_id == student_id).first() #queries the db for student using input
         course = session.query(CourseModel).filter(CourseModel.crn == args['crn']).one_or_none() #queries the db for the course
         
-        # abort if not admin, or the course instructor
-        if course.faculty.faculty_id != current_identity.faculty_id and current_identity.user_type == "1":
+        # abort if not the course instructor
+        if course.faculty.faculty_id != current_identity.faculty_id:
             abort(403, message="You are not authorized to add students to this course.")
 
         if student:
@@ -63,8 +63,8 @@ class Student(Resource):
         student = session.query(StudentModel).filter(StudentModel.student_id == student_id).first()
         course = session.query(CourseModel).filter(CourseModel.crn == args['crn']).first()
         assessments = session.query(AssessmentModel).filter(AssessmentModel.crn == args['crn'], AssessmentModel.student_id == student_id).all()
-        # Abort if not admin or course owner
-        if course.faculty.faculty_id != current_identity.faculty_id and current_identity.user_type == "1":
+        # Abort if not course owner
+        if course.faculty.faculty_id != current_identity.faculty_id:
             abort(403, message="You are not authorized to delete students from this course.")
         
         #remove student from the course
@@ -121,7 +121,7 @@ class BatchStudent(Resource):
         # ensure course exists and requester is authorized to add students to it
         course = session.query(CourseModel).filter(CourseModel.crn == crn).one_or_none() #queries the db for the course
         if not course: abort(404, message="requested course was not found")
-        if course.faculty.faculty_id != current_identity.faculty_id and current_identity.user_type == "1":
+        if course.faculty.faculty_id != current_identity.faculty_id:
             abort(403, message="You are not authorized to batch add students to this course.")
         
         # Add the valid students to the db

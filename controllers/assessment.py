@@ -55,7 +55,7 @@ class Assessment(Resource):
     assessment = session.query(AssessmentModel).filter(AssessmentModel.assessment_id == assessment_id).first()
     if not assessment: abort(404, message="Assessment doesn't exist") 
 
-    if (assessment.course.faculty.faculty_id != current_identity.faculty_id) and (current_identity.user_type != "1"):
+    if (assessment.course.faculty.faculty_id != current_identity.faculty_id):
       abort(403, message="You are not authorized to update this assessment.")
 
     total_score = reduce((lambda total, scoreObj: total + scoreObj['score']), [0] + args['scores']) # a fancy for loop with an accumulator
@@ -74,7 +74,7 @@ class Assessment(Resource):
     if (assessment):
       
       # Ensure requester is authorized to delete this assessment
-      if (assessment.course.faculty.faculty_id != current_identity.faculty_id) and (current_identity.user_type != "1"):
+      if (assessment.course.faculty.faculty_id != current_identity.faculty_id):
         abort(403, message="You are not authorized to delete this assessment.")
 
       for each_score in assessment.scores:
@@ -106,6 +106,9 @@ class AssessmentList(Resource):
     if not course: abort(404, message="Course doesn't exist.")
     if not slo: abort(404, message="SLO doesn't exist.")
     if not student: abort(404, message="Student doesn't exist")
+
+    if course.faculty.faculty_id != current_identity.faculty_id:
+      abort(403, message="You are not authorized to create new assessments for this course.")
 
     total_score = reduce((lambda total, scoreObj: total + scoreObj['score']), [0] + args['scores']) # a fancy for loop with an accumulator
     filed_assessment = AssessmentModel(crn, args['slo_id'], args['student_id'], total_score) # init our new assessment object
